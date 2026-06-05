@@ -1,0 +1,22 @@
+{
+    "name": "butialabs/refaxination",
+    "description": "WordPress media audit and orphan file manager",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0-or-later",
+    "require": {
+        "php": ">=8.1",
+        "league/flysystem": "^3.0",
+        "league/csv": "^9.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Refaxination\\": "includes/",
+            "Refaxination\\Admin\\": "admin/",
+            "Refaxination\\Cli\\": "cli/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    }
+}

@@ -1,0 +1,10 @@
+/.github
+/.wordpress-org
+/.gitignore
+/.distignore
+/phpcs.xml.dist
+/CHANGELOG.md
+/README.md
+/refaxination.png
+/composer.json
+/composer.lock
