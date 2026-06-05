@@ -1,10 +1,32 @@
+# Directories
+/.git
 /.github
 /.wordpress-org
-/.gitignore
-/.distignore
-/phpcs.xml.dist
-/CHANGELOG.md
-/README.md
-/refaxination.png
-/composer.json
-/composer.lock
+/node_modules
+/tests
+/plans
+
+# Files
+.distignore
+.editorconfig
+.gitattributes
+.gitignore
+composer.json
+composer.lock
+package.json
+package-lock.json
+phpcs.xml
+phpcs.xml.dist
+phpunit.xml
+phpunit.xml.dist
+README.md
+CONTRIBUTING.md
+CODE_OF_CONDUCT.md
+CHANGELOG.md
+
+# IDE and OS files
+.idea
+.vscode
+*.log
+.DS_Store
+Thumbs.db
