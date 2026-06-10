@@ -238,11 +238,8 @@ class Cli extends \WP_CLI_Command
             \WP_CLI::success(__('All tables recreated.', 'refaxination'));
         } else {
             foreach ([Database::filesTable(), Database::refsTable(), Database::opsTable()] as $table) {
-                $escapedTable = esc_sql($table);
-                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.SchemaChange
-                $count = (int) $wpdb->get_var("SELECT COUNT(*) FROM `{$escapedTable}`");
-                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.SchemaChange
-                $wpdb->query("TRUNCATE TABLE `{$escapedTable}`");
+                $count = (int) $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM %i', $table ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                $wpdb->query( $wpdb->prepare( 'TRUNCATE TABLE %i', $table ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
                 // translators: %1$s is the table name, %2$d is the number of rows removed.
                 \WP_CLI::line(sprintf(__('Truncated: %1$s (%2$d rows removed)', 'refaxination'), $table, $count));
             }
@@ -265,17 +262,13 @@ class Cli extends \WP_CLI_Command
     {
         global $wpdb;
 
-        $opsTable = esc_sql( Database::opsTable() );
-        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $updated = $wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             $wpdb->prepare(
-                "UPDATE `{$opsTable}`
-                 SET status = 'interrupted', completed_at = %s
-                 WHERE status = 'running'",
+                "UPDATE %i SET status = 'interrupted', completed_at = %s WHERE status = 'running'",
+                Database::opsTable(),
                 current_time('mysql'),
             )
         );
-        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
         \WP_CLI::success(sprintf(
             // translators: %d is the number of stale operations that were marked as interrupted.
@@ -288,18 +281,15 @@ class Cli extends \WP_CLI_Command
     {
         global $wpdb;
 
-        $statuses = ["'orphan'"];
-        if ($includeLibraryOnly) {
-            $statuses[] = "'library_only'";
-        }
+        $statusValues       = $includeLibraryOnly ? ['orphan', 'library_only'] : ['orphan'];
+        $statusPlaceholders = implode(',', array_fill(0, count($statusValues), '%s'));
 
-        $filesTable = esc_sql( Database::filesTable() );
-        // $statusIn is built exclusively from hardcoded status string literals — no user input.
-        $statusIn   = implode(',', $statuses);
-        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
         return (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-            "SELECT COUNT(*) FROM `{$filesTable}` WHERE status IN ({$statusIn})"
+            $wpdb->prepare(
+                "SELECT COUNT(*) FROM %i WHERE status IN ({$statusPlaceholders})",
+                Database::filesTable(),
+                ...$statusValues
+            )
         );
-        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
     }
 }

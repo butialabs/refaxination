@@ -37,12 +37,14 @@ class FileScanner
         $batch      = [];
 
         if ($resume) {
-            $opsTable = esc_sql( Database::opsTable() );
-            // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-            $lastOp = $wpdb->get_row(
-                "SELECT resume_cursor FROM `{$opsTable}` WHERE operation_type = 'scan_files' AND status = 'interrupted' ORDER BY started_at DESC LIMIT 1"
+            $lastOp = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                $wpdb->prepare(
+                    "SELECT resume_cursor FROM %i WHERE operation_type = %s AND status = %s ORDER BY started_at DESC LIMIT 1",
+                    Database::opsTable(),
+                    'scan_files',
+                    'interrupted'
+                )
             );
-            // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
             $cursor = $lastOp?->resume_cursor;
 
             if ($cursor) {
@@ -171,13 +173,14 @@ class FileScanner
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
         $wpdb->query( 'START TRANSACTION' );
 
-        $table = esc_sql( Database::filesTable() );
+        $table = Database::filesTable();
         foreach ($rows as $row) {
-            // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             $wpdb->query( $wpdb->prepare(
-                "INSERT IGNORE INTO `{$table}`
+                "INSERT IGNORE INTO %i
                  (relative_path, filename, extension, file_size, mime_type, is_thumbnail, status, first_seen_at)
                  VALUES (%s, %s, %s, %d, %s, %d, %s, %s)",
+                $table,
                 $row['relative_path'],
                 $row['filename'],
                 $row['extension'],
@@ -187,7 +190,7 @@ class FileScanner
                 $row['status'],
                 $row['first_seen_at'],
             ));
-            // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
         }
 
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -198,14 +201,13 @@ class FileScanner
     {
         global $wpdb;
 
-        $table = esc_sql( Database::filesTable() );
-
-        // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-        $candidates = $wpdb->get_results(
-            "SELECT id, relative_path, filename, extension FROM `{$table}` WHERE is_thumbnail = 0 AND mime_type LIKE 'image/%'",
+        $candidates = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+            $wpdb->prepare(
+                "SELECT id, relative_path, filename, extension FROM %i WHERE is_thumbnail = 0 AND mime_type LIKE 'image/%%'",
+                Database::filesTable()
+            ),
             ARRAY_A
         );
-        // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
         $thumbCount  = 0;
         $parentPaths = [];
@@ -224,7 +226,8 @@ class FileScanner
             // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
             $parents = $wpdb->get_results(
                 $wpdb->prepare(
-                    "SELECT id, relative_path FROM `{$table}` WHERE relative_path IN ({$placeholders})",
+                    "SELECT id, relative_path FROM %i WHERE relative_path IN ({$placeholders})",
+                    Database::filesTable(),
                     ...$paths
                 ),
                 ARRAY_A
@@ -236,7 +239,7 @@ class FileScanner
             foreach ($chunk as $thumbId => $parentPath) {
                 if (isset($parentIndex[$parentPath])) {
                     // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-                    $wpdb->update($table, [
+                    $wpdb->update(Database::filesTable(), [
                         'is_thumbnail' => 1,
                         'parent_id'    => $parentIndex[$parentPath],
                     ], ['id' => $thumbId]);
@@ -249,11 +252,12 @@ class FileScanner
             }
         }
 
-        // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-        $parentCount = (int) $wpdb->get_var(
-            "SELECT COUNT(DISTINCT parent_id) FROM `{$table}` WHERE parent_id IS NOT NULL"
+        $parentCount = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+            $wpdb->prepare(
+                'SELECT COUNT(DISTINCT parent_id) FROM %i WHERE parent_id IS NOT NULL',
+                Database::filesTable()
+            )
         );
-        // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
         return [$thumbCount, $parentCount];
     }

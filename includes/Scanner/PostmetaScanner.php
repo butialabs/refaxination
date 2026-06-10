@@ -56,7 +56,6 @@ class PostmetaScanner implements ScannerInterface
     {
         global $wpdb;
 
-        $refsTable = esc_sql( Database::refsTable() );
         $inserted  = 0;
 
         $placeholders = implode(',', array_fill(0, count($attachmentIds), '%d'));
@@ -83,18 +82,17 @@ class PostmetaScanner implements ScannerInterface
                 continue;
             }
 
-            // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             $result = $wpdb->query($wpdb->prepare(
-                "INSERT IGNORE INTO {$refsTable}
-                 (file_id, source_type, source_id, meta_key, context)
-                 VALUES (%d, %s, %d, %s, %s)",
+                "INSERT IGNORE INTO %i (file_id, source_type, source_id, meta_key, context) VALUES (%d, %s, %d, %s, %s)",
+                Database::refsTable(),
                 $fileId,
                 SourceType::Postmeta->value,
                 (int) $row['post_id'],
                 '_thumbnail_id',
                 'featured_image',
             ));
-            // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
             $inserted += (int) ($result !== false);
         }
@@ -106,7 +104,6 @@ class PostmetaScanner implements ScannerInterface
     {
         global $wpdb;
 
-        $refsTable    = esc_sql( Database::refsTable() );
         $inserted     = 0;
         $placeholders = implode(',', array_fill(0, count($attachmentIds), '%d'));
         $ids          = array_keys($attachmentIds);
@@ -137,18 +134,17 @@ class PostmetaScanner implements ScannerInterface
                 continue;
             }
 
-            // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             $result = $wpdb->query($wpdb->prepare(
-                "INSERT IGNORE INTO {$refsTable}
-                 (file_id, source_type, source_id, meta_key, context)
-                 VALUES (%d, %s, %d, %s, %s)",
+                "INSERT IGNORE INTO %i (file_id, source_type, source_id, meta_key, context) VALUES (%d, %s, %d, %s, %s)",
+                Database::refsTable(),
                 $fileId,
                 SourceType::Postmeta->value,
                 (int) $row['post_id'],
                 $row['meta_key'],
                 'attachment_id_meta',
             ));
-            // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
             $inserted += (int) ($result !== false);
         }
@@ -164,7 +160,6 @@ class PostmetaScanner implements ScannerInterface
             return 0;
         }
 
-        $refsTable   = esc_sql( Database::refsTable() );
         $upload      = wp_upload_dir();
         $uploadsPath = rtrim(wp_parse_url($upload['baseurl'], PHP_URL_PATH), '/') . '/';
         $inserted    = 0;
@@ -210,18 +205,17 @@ class PostmetaScanner implements ScannerInterface
                         continue;
                     }
 
-                    // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                    // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                     $wpdb->query($wpdb->prepare(
-                        "INSERT IGNORE INTO {$refsTable}
-                         (file_id, source_type, source_id, meta_key, context)
-                         VALUES (%d, %s, %d, %s, %s)",
+                        "INSERT IGNORE INTO %i (file_id, source_type, source_id, meta_key, context) VALUES (%d, %s, %d, %s, %s)",
+                        Database::refsTable(),
                         $pathIndex[$relativePath],
                         SourceType::Postmeta->value,
                         (int) $row['post_id'],
                         $row['meta_key'],
                         'url_in_meta',
                     ));
-                    // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                    // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                     $inserted++;
                 }
 

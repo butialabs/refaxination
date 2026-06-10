@@ -56,7 +56,6 @@ class SeoFrameworkScanner implements ScannerInterface
     {
         global $wpdb;
 
-        $refsTable   = esc_sql( Database::refsTable() );
         $inserted    = 0;
         $upload      = wp_upload_dir();
         $uploadsPath = rtrim(wp_parse_url($upload['baseurl'], PHP_URL_PATH), '/') . '/';
@@ -83,18 +82,19 @@ class SeoFrameworkScanner implements ScannerInterface
                 continue;
             }
 
-            // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             $wpdb->query($wpdb->prepare(
-                "INSERT IGNORE INTO {$refsTable}
+                "INSERT IGNORE INTO %i
                  (file_id, source_type, source_id, meta_key, context)
                  VALUES (%d, %s, %d, %s, %s)",
+                Database::refsTable(),
                 $fileId,
                 SourceType::Tsf->value,
                 (int) $row['post_id'],
                 $row['meta_key'],
                 'tsf_post_image',
             ));
-            // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             $inserted++;
         }
 
@@ -109,7 +109,6 @@ class SeoFrameworkScanner implements ScannerInterface
             return 0;
         }
 
-        $refsTable   = esc_sql( Database::refsTable() );
         $upload      = wp_upload_dir();
         $uploadsPath = rtrim(wp_parse_url($upload['baseurl'], PHP_URL_PATH), '/') . '/';
         $inserted    = 0;
@@ -136,18 +135,19 @@ class SeoFrameworkScanner implements ScannerInterface
                 continue;
             }
 
-            // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             $wpdb->query($wpdb->prepare(
-                "INSERT IGNORE INTO {$refsTable}
+                "INSERT IGNORE INTO %i
                  (file_id, source_type, source_id, meta_key, context)
                  VALUES (%d, %s, %d, %s, %s)",
+                Database::refsTable(),
                 $fileId,
                 SourceType::Tsf->value,
                 (int) $row['term_id'],
                 $row['meta_key'],
                 'tsf_term_image',
             ));
-            // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             $inserted++;
         }
 
@@ -158,7 +158,6 @@ class SeoFrameworkScanner implements ScannerInterface
     {
         global $wpdb;
 
-        $refsTable   = esc_sql( Database::refsTable() );
         $upload      = wp_upload_dir();
         $uploadsPath = rtrim(wp_parse_url($upload['baseurl'], PHP_URL_PATH), '/') . '/';
         $inserted    = 0;
@@ -198,18 +197,19 @@ class SeoFrameworkScanner implements ScannerInterface
                 continue;
             }
 
-            // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             $wpdb->query($wpdb->prepare(
-                "INSERT IGNORE INTO {$refsTable}
+                "INSERT IGNORE INTO %i
                  (file_id, source_type, source_id, meta_key, context)
                  VALUES (%d, %s, %d, %s, %s)",
+                Database::refsTable(),
                 $fileId,
                 SourceType::Tsf->value,
                 $optionId,
                 $key,
                 'tsf_site_setting',
             ));
-            // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             $inserted++;
         }
 
@@ -224,18 +224,19 @@ class SeoFrameworkScanner implements ScannerInterface
                 continue;
             }
 
-            // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             $wpdb->query($wpdb->prepare(
-                "INSERT IGNORE INTO {$refsTable}
+                "INSERT IGNORE INTO %i
                  (file_id, source_type, source_id, meta_key, context)
                  VALUES (%d, %s, %d, %s, %s)",
+                Database::refsTable(),
                 $fileId,
                 SourceType::Tsf->value,
                 $optionId,
                 $key,
                 'tsf_site_setting',
             ));
-            // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             $inserted++;
         }
 

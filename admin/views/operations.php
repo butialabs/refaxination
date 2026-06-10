@@ -8,16 +8,16 @@ if (! defined('ABSPATH')) {
 
 global $wpdb;
 
-$opsTable = esc_sql( \Refaxination\Database::opsTable() ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
-// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
-$ops = $wpdb->get_results(
-    "SELECT * FROM `{$opsTable}` ORDER BY started_at DESC LIMIT 50",
+$ops = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+    $wpdb->prepare(
+        'SELECT * FROM %i ORDER BY started_at DESC LIMIT 50',
+        \Refaxination\Database::opsTable()
+    ),
     ARRAY_A
 );
-// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 
 // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound
-function rfx_duration_str(?int $secs): string
+function refaxination_duration_str(?int $secs): string
 {
     if ($secs === null) return '-';
     return gmdate('H:i:s', $secs);
@@ -84,7 +84,7 @@ function rfx_duration_str(?int $secs): string
                 0
             <?php endif; ?>
         </td>
-        <td data-label="Duration"><?php echo esc_html(rfx_duration_str(isset($op['duration_secs']) ? (int) $op['duration_secs'] : null)); ?></td>
+        <td data-label="Duration"><?php echo esc_html(refaxination_duration_str(isset($op['duration_secs']) ? (int) $op['duration_secs'] : null)); ?></td>
         <td data-label="Started"><?php echo esc_html($op['started_at']); ?></td>
         <td data-label="Completed"><?php echo esc_html($op['completed_at'] ?? '-'); ?></td>
         <td data-label="Options">

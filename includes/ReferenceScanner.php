@@ -29,8 +29,6 @@ class ReferenceScanner
     {
         global $wpdb;
 
-        $filesTable = esc_sql( Database::filesTable() );
-
         $activeScanners = $enabledSources !== null
             ? array_filter(
                 $this->scanners,
@@ -65,10 +63,11 @@ class ReferenceScanner
             'sources' => $scannerNames,
         ]);
 
-        // $countSuffix is built from hardcoded SQL fragments only — no user input interpolated.
-        $countSuffix = $resume ? ' WHERE scanned_refs_at IS NULL' : '';
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
-        $total = (int) $wpdb->get_var( "SELECT COUNT(*) FROM `{$filesTable}`{$countSuffix}" );
+        $total = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+            $resume
+                ? $wpdb->prepare( 'SELECT COUNT(*) FROM %i WHERE scanned_refs_at IS NULL', Database::filesTable() )
+                : $wpdb->prepare( 'SELECT COUNT(*) FROM %i', Database::filesTable() )
+        );
 
         Database::updateOperation($opId, ['items_total' => $total]);
 
@@ -85,21 +84,21 @@ class ReferenceScanner
         do {
             $whereClause = $resume ? 'WHERE scanned_refs_at IS NULL' : '';
 
-            // $whereClause is built from hardcoded SQL fragments only — no user input interpolated.
-            // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, PluginCheck.Security.DirectDB.UnescapedDBParameter
+            // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
             $batch = $wpdb->get_results(
                 $wpdb->prepare(
                     "SELECT id, relative_path, attachment_id
-                     FROM `{$filesTable}`
+                     FROM %i
                      {$whereClause}
                      ORDER BY id ASC
                      LIMIT %d OFFSET %d",
+                    Database::filesTable(),
                     $batchSize,
                     $offset,
                 ),
                 ARRAY_A
             );
-            // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, PluginCheck.Security.DirectDB.UnescapedDBParameter
+            // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
             if ($batch === []) {
                 break;
@@ -124,7 +123,8 @@ class ReferenceScanner
             // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
             $wpdb->query(
                 $wpdb->prepare(
-                    "UPDATE `{$filesTable}` SET scanned_refs_at = %s WHERE id IN ({$placeholders})",
+                    "UPDATE %i SET scanned_refs_at = %s WHERE id IN ({$placeholders})",
+                    Database::filesTable(),
                     current_time( 'mysql' ),
                     ...$ids,
                 )
@@ -166,66 +166,74 @@ class ReferenceScanner
     {
         global $wpdb;
 
-        $filesTable = esc_sql( Database::filesTable() );
-        $refsTable  = esc_sql( Database::refsTable() );
-
-        // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
         $wpdb->query(
-            "UPDATE `{$filesTable}` f
-             INNER JOIN `{$refsTable}` r ON r.file_id = f.id AND r.source_type != 'attachment'
-             SET f.status = 'referenced'
-             WHERE f.is_thumbnail = 0"
+            $wpdb->prepare(
+                "UPDATE %i f
+                 INNER JOIN %i r ON r.file_id = f.id AND r.source_type != 'attachment'
+                 SET f.status = 'referenced'
+                 WHERE f.is_thumbnail = 0",
+                Database::filesTable(),
+                Database::refsTable()
+            )
         );
 
         $wpdb->query(
-            "UPDATE `{$filesTable}` f
-             INNER JOIN `{$refsTable}` r ON r.file_id = f.id
-             SET f.status = 'library_only'
-             WHERE f.status = 'pending' AND f.is_thumbnail = 0"
+            $wpdb->prepare(
+                "UPDATE %i f
+                 INNER JOIN %i r ON r.file_id = f.id
+                 SET f.status = 'library_only'
+                 WHERE f.status = 'pending' AND f.is_thumbnail = 0",
+                Database::filesTable(),
+                Database::refsTable()
+            )
         );
 
         $wpdb->query(
-            "UPDATE `{$filesTable}`
-             SET status = 'orphan'
-             WHERE status = 'pending' AND is_thumbnail = 0"
+            $wpdb->prepare(
+                "UPDATE %i SET status = 'orphan' WHERE status = 'pending' AND is_thumbnail = 0",
+                Database::filesTable()
+            )
         );
-        // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
     }
 
     private function inheritThumbnailStatuses(): void
     {
         global $wpdb;
 
-        $filesTable = esc_sql( Database::filesTable() );
-
-        // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
         $wpdb->query(
-            "UPDATE `{$filesTable}` thumb
-             INNER JOIN `{$filesTable}` parent ON parent.id = thumb.parent_id
-             SET thumb.status = parent.status
-             WHERE thumb.is_thumbnail = 1 AND thumb.parent_id IS NOT NULL"
+            $wpdb->prepare(
+                "UPDATE %i thumb
+                 INNER JOIN %i parent ON parent.id = thumb.parent_id
+                 SET thumb.status = parent.status
+                 WHERE thumb.is_thumbnail = 1 AND thumb.parent_id IS NOT NULL",
+                Database::filesTable(),
+                Database::filesTable()
+            )
         );
 
         $wpdb->query(
-            "UPDATE `{$filesTable}`
-             SET status = 'orphan'
-             WHERE is_thumbnail = 1 AND status = 'pending'"
+            $wpdb->prepare(
+                "UPDATE %i SET status = 'orphan' WHERE is_thumbnail = 1 AND status = 'pending'",
+                Database::filesTable()
+            )
         );
-        // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
     }
 
     private function printStatusSummary(): void
     {
         global $wpdb;
 
-        $filesTable = esc_sql( Database::filesTable() );
-
-        // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-        $rows = $wpdb->get_results(
-            "SELECT status, COUNT(*) AS cnt FROM `{$filesTable}` GROUP BY status ORDER BY status",
+        $rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+            $wpdb->prepare(
+                'SELECT status, COUNT(*) AS cnt FROM %i GROUP BY status ORDER BY status',
+                Database::filesTable()
+            ),
             ARRAY_A
         );
-        // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
         \WP_CLI::line('');
         \WP_CLI::line(__('Status distribution:', 'refaxination'));

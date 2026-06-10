@@ -126,13 +126,11 @@ class Database
         global $wpdb;
 
         foreach ([self::filesTable(), self::refsTable(), self::opsTable()] as $table) {
-            $escapedTable = esc_sql( $table );
-            $wpdb->query( "DROP TABLE IF EXISTS `{$escapedTable}`" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.SchemaChange
+            $wpdb->query( $wpdb->prepare( 'DROP TABLE IF EXISTS %i', $table ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
         }
 
         if ($dropMoves) {
-            $movesTable = esc_sql( self::movesTable() );
-            $wpdb->query( "DROP TABLE IF EXISTS `{$movesTable}`" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.SchemaChange
+            $wpdb->query( $wpdb->prepare( 'DROP TABLE IF EXISTS %i', self::movesTable() ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
         }
 
         delete_option(self::OPTION_KEY);
@@ -142,14 +140,12 @@ class Database
     {
         global $wpdb;
 
-        $opsTable = esc_sql( self::opsTable() );
-        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $wpdb->query( $wpdb->prepare( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-            "UPDATE `{$opsTable}` SET status = 'interrupted', completed_at = %s WHERE status = 'running' AND operation_type = %s",
+            "UPDATE %i SET status = 'interrupted', completed_at = %s WHERE status = 'running' AND operation_type = %s",
+            self::opsTable(),
             current_time('mysql'),
             $type,
         ) );
-        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
         $wpdb->insert(self::opsTable(), [ // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             'operation_type' => $type,
@@ -172,13 +168,11 @@ class Database
     {
         global $wpdb;
 
-        $opsTable = esc_sql( self::opsTable() );
-        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $op = $wpdb->get_row( $wpdb->prepare( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-            "SELECT started_at FROM `{$opsTable}` WHERE id = %d",
+            'SELECT started_at FROM %i WHERE id = %d',
+            self::opsTable(),
             $opId
         ) );
-        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
         $duration = $op ? (int) (time() - strtotime($op->started_at)) : 0;
 
@@ -193,13 +187,11 @@ class Database
     {
         global $wpdb;
 
-        $opsTable = esc_sql( self::opsTable() );
-        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $current = (string) $wpdb->get_var( $wpdb->prepare( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-            "SELECT error_log FROM `{$opsTable}` WHERE id = %d",
+            'SELECT error_log FROM %i WHERE id = %d',
+            self::opsTable(),
             $opId
         ) );
-        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
         $wpdb->update(self::opsTable(), [ // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             'error_log' => $current . '[' . current_time('mysql') . '] ' . $message . "\n",
@@ -210,23 +202,25 @@ class Database
     {
         global $wpdb;
 
-        $opsTable = esc_sql( self::opsTable() );
-        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         return $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-            "SELECT * FROM `{$opsTable}` WHERE status = 'running' ORDER BY started_at DESC LIMIT 1"
+            $wpdb->prepare(
+                "SELECT * FROM %i WHERE status = %s ORDER BY started_at DESC LIMIT 1",
+                self::opsTable(),
+                'running'
+            )
         );
-        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
     }
 
     public static function getLastOperation(): ?object
     {
         global $wpdb;
 
-        $opsTable = esc_sql( self::opsTable() );
-        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         return $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-            "SELECT * FROM `{$opsTable}` WHERE status != 'running' ORDER BY completed_at DESC LIMIT 1"
+            $wpdb->prepare(
+                "SELECT * FROM %i WHERE status != %s ORDER BY completed_at DESC LIMIT 1",
+                self::opsTable(),
+                'running'
+            )
         );
-        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
     }
 }

@@ -31,8 +31,6 @@ class AttachmentScanner implements ScannerInterface
             return 0;
         }
 
-        $filesTable = esc_sql( Database::filesTable() );
-        $refsTable  = esc_sql( Database::refsTable() );
         $inserted   = 0;
 
         // Build an index of relative_path => file_id from the batch
@@ -71,21 +69,18 @@ class AttachmentScanner implements ScannerInterface
 
             // Update attachment_id on the files table
             // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-            $wpdb->update($filesTable, ['attachment_id' => $attachmentId], ['id' => $fileId]);
+            $wpdb->update(Database::filesTable(), ['attachment_id' => $attachmentId], ['id' => $fileId]);
 
             // Insert reference
-            // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-            $wpdb->query($wpdb->prepare(
-                "INSERT IGNORE INTO {$refsTable}
-                 (file_id, source_type, source_id, meta_key, context)
-                 VALUES (%d, %s, %d, %s, %s)",
+            $wpdb->query($wpdb->prepare( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                'INSERT IGNORE INTO %i (file_id, source_type, source_id, meta_key, context) VALUES (%d, %s, %d, %s, %s)',
+                Database::refsTable(),
                 $fileId,
                 SourceType::Attachment->value,
                 $attachmentId,
                 '_wp_attached_file',
                 'wp_attachment',
             ));
-            // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
             $inserted++;
             unset($pathIndex[$path]);
@@ -105,20 +100,19 @@ class AttachmentScanner implements ScannerInterface
     {
         global $wpdb;
 
-        $filesTable = esc_sql( Database::filesTable() );
-
-        // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-        $attachments = $wpdb->get_results(
-            "SELECT f.id AS file_id, f.relative_path, f.attachment_id,
-                    pm.meta_value AS metadata
-             FROM {$filesTable} f
-             INNER JOIN {$wpdb->postmeta} pm
-                ON pm.post_id = f.attachment_id AND pm.meta_key = '_wp_attachment_metadata'
-             WHERE f.attachment_id IS NOT NULL
-               AND mime_type LIKE 'image/%'",
+        $attachments = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+            $wpdb->prepare(
+                "SELECT f.id AS file_id, f.relative_path, f.attachment_id,
+                        pm.meta_value AS metadata
+                 FROM %i f
+                 INNER JOIN {$wpdb->postmeta} pm
+                    ON pm.post_id = f.attachment_id AND pm.meta_key = '_wp_attachment_metadata'
+                 WHERE f.attachment_id IS NOT NULL
+                   AND mime_type LIKE 'image/%%'",
+                Database::filesTable()
+            ),
             ARRAY_A
         );
-        // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
         foreach ($attachments as $row) {
             $meta = maybe_unserialize($row['metadata']);
@@ -137,15 +131,12 @@ class AttachmentScanner implements ScannerInterface
 
                 $thumbPath = $dir . $sizeData['file'];
 
-                // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-                $wpdb->query($wpdb->prepare(
-                    "UPDATE {$filesTable}
-                     SET is_thumbnail = 1, parent_id = %d
-                     WHERE relative_path = %s AND is_thumbnail = 0",
+                $wpdb->query($wpdb->prepare( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                    'UPDATE %i SET is_thumbnail = 1, parent_id = %d WHERE relative_path = %s AND is_thumbnail = 0',
+                    Database::filesTable(),
                     (int) $row['file_id'],
                     $thumbPath,
                 ));
-                // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
             }
         }
     }

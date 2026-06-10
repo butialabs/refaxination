@@ -34,8 +34,6 @@ class SspScanner implements ScannerInterface
 
         $upload      = wp_upload_dir();
         $uploadsPath = rtrim(wp_parse_url($upload['baseurl'], PHP_URL_PATH), '/') . '/';
-        $refsTable   = esc_sql( Database::refsTable() );
-
         $pathIndex = [];
         foreach ($fileBatch as $file) {
             $pathIndex[$file['relative_path']] = (int) $file['id'];
@@ -75,18 +73,19 @@ class SspScanner implements ScannerInterface
                 continue;
             }
 
-            // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             $wpdb->query($wpdb->prepare(
-                "INSERT IGNORE INTO {$refsTable}
+                "INSERT IGNORE INTO %i
                  (file_id, source_type, source_id, meta_key, context)
                  VALUES (%d, %s, %d, %s, %s)",
+                Database::refsTable(),
                 $pathIndex[$relativePath],
                 SourceType::Ssp->value,
                 (int) $row['post_id'],
                 $row['meta_key'],
                 'ssp_audio',
             ));
-            // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             $inserted++;
         }
 

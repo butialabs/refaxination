@@ -6,10 +6,10 @@
 
     function rfxPost(callback) {
         var body = new URLSearchParams({
-            action: 'rfx_status_poll',
-            _ajax_nonce: rfxAdmin.nonce,
+            action: 'refaxination_status_poll',
+            _ajax_nonce: refaxinationAdmin.nonce,
         });
-        fetch(rfxAdmin.ajaxurl, { method: 'POST', body: body })
+        fetch(refaxinationAdmin.ajaxurl, { method: 'POST', body: body })
             .then(function (r) { return r.json(); })
             .then(callback)
             .catch(function () { callback(null); });

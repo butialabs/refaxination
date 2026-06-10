@@ -13,26 +13,23 @@ class Reporter
     {
         global $wpdb;
 
-        $filesTable = esc_sql( Database::filesTable() );
-
         if ($status === null) {
             $this->printSummary($format);
             return;
         }
 
-        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             $wpdb->prepare(
                 "SELECT id, relative_path, file_size, mime_type, status,
                         attachment_id, is_thumbnail, parent_id, first_seen_at
-                 FROM `{$filesTable}`
+                 FROM %i
                  WHERE status = %s
                  ORDER BY relative_path ASC",
+                Database::filesTable(),
                 $status->value,
             ),
             ARRAY_A
         );
-        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
         match ($format) {
             'json' => $this->outputJson($rows),
@@ -45,34 +42,33 @@ class Reporter
     {
         global $wpdb;
 
-        $filesTable = esc_sql( Database::filesTable() );
-
-        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-            "SELECT
-                CASE
-                    WHEN mime_type LIKE 'image/%'             THEN 'image'
-                    WHEN mime_type LIKE 'video/%'             THEN 'video'
-                    WHEN mime_type LIKE 'audio/%'             THEN 'audio'
-                    WHEN mime_type IN (
-                        'application/pdf',
-                        'application/msword',
-                        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                        'application/vnd.ms-excel',
-                        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                        'application/vnd.ms-powerpoint',
-                        'application/vnd.openxmlformats-officedocument.presentationml.presentation'
-                    )                                         THEN 'document'
-                    ELSE 'other'
-                END AS type,
-                COUNT(*)        AS total,
-                SUM(file_size)  AS total_bytes
-             FROM {$filesTable}
-             GROUP BY type
-             ORDER BY total_bytes DESC",
+            $wpdb->prepare(
+                "SELECT
+                    CASE
+                        WHEN mime_type LIKE 'image/%%'             THEN 'image'
+                        WHEN mime_type LIKE 'video/%%'             THEN 'video'
+                        WHEN mime_type LIKE 'audio/%%'             THEN 'audio'
+                        WHEN mime_type IN (
+                            'application/pdf',
+                            'application/msword',
+                            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                            'application/vnd.ms-excel',
+                            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                            'application/vnd.ms-powerpoint',
+                            'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+                        )                                         THEN 'document'
+                        ELSE 'other'
+                    END AS type,
+                    COUNT(*)        AS total,
+                    SUM(file_size)  AS total_bytes
+                 FROM %i
+                 GROUP BY type
+                 ORDER BY total_bytes DESC",
+                Database::filesTable()
+            ),
             ARRAY_A
         );
-        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
         $rows = array_map(function (array $row): array {
             $row['size'] = $this->humanBytes((int) $row['total_bytes']);
@@ -91,16 +87,13 @@ class Reporter
     {
         global $wpdb;
 
-        $filesTable = esc_sql( Database::filesTable() );
-
-        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $stats = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-            "SELECT status, COUNT(*) AS total, SUM(file_size) AS total_bytes
-             FROM `{$filesTable}`
-             GROUP BY status",
+            $wpdb->prepare(
+                'SELECT status, COUNT(*) AS total, SUM(file_size) AS total_bytes FROM %i GROUP BY status',
+                Database::filesTable()
+            ),
             ARRAY_A
         );
-        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
         $grandTotal      = 0;
         $grandTotalBytes = 0;

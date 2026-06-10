@@ -38,8 +38,6 @@ class OptionsScanner implements ScannerInterface
 
         $upload      = wp_upload_dir();
         $uploadsPath = rtrim(wp_parse_url($upload['baseurl'], PHP_URL_PATH), '/') . '/';
-        $refsTable   = esc_sql( Database::refsTable() );
-
         $pathIndex = [];
         $idIndex   = [];
 
@@ -96,18 +94,19 @@ class OptionsScanner implements ScannerInterface
             $found = $this->extractRefs($value, $uploadsPath, $pathIndex, $idIndex, depth: 0);
 
             foreach ($found as $fileId) {
-                // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                 $wpdb->query($wpdb->prepare(
-                    "INSERT IGNORE INTO {$refsTable}
+                    "INSERT IGNORE INTO %i
                      (file_id, source_type, source_id, meta_key, context)
                      VALUES (%d, %s, %d, %s, %s)",
+                    Database::refsTable(),
                     $fileId,
                     SourceType::Options->value,
                     (int) $option['option_id'],
                     $option['option_name'],
                     'option_value',
                 ));
-                // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                 $inserted++;
             }
 

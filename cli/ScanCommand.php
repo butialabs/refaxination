@@ -47,12 +47,8 @@ class ScanCommand extends \WP_CLI_Command
 
         if ($reset) {
             global $wpdb;
-            $filesTable = esc_sql( Database::filesTable() );
-            $refsTable  = esc_sql( Database::refsTable() );
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.SchemaChange
-            $wpdb->query("TRUNCATE TABLE `{$filesTable}`");
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.SchemaChange
-            $wpdb->query("TRUNCATE TABLE `{$refsTable}`");
+            $wpdb->query( $wpdb->prepare( 'TRUNCATE TABLE %i', Database::filesTable() ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
+            $wpdb->query( $wpdb->prepare( 'TRUNCATE TABLE %i', Database::refsTable() ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
             \WP_CLI::line(__('Tables truncated.', 'refaxination'));
         }
 

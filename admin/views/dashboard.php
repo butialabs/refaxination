@@ -8,16 +8,13 @@ if (! defined('ABSPATH')) {
 
 global $wpdb;
 
-$filesTable = \Refaxination\Database::filesTable(); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
-
-// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- $filesTable is built from $wpdb->prefix and a fixed string, it is safe
-$stats = $wpdb->get_results(
-    "SELECT status, COUNT(*) AS cnt, SUM(file_size) AS total_bytes
-     FROM {$filesTable}
-     GROUP BY status",
+$stats = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+    $wpdb->prepare(
+        'SELECT status, COUNT(*) AS cnt, SUM(file_size) AS total_bytes FROM %i GROUP BY status',
+        \Refaxination\Database::filesTable()
+    ),
     ARRAY_A
 );
-// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 
 $byStatus   = array_column($stats, null, 'status'); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 $grandTotal = array_sum(array_column($stats, 'cnt')); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
@@ -25,7 +22,7 @@ $grandBytes = array_sum(array_column($stats, 'total_bytes')); // phpcs:ignore Wo
 $lastOp = \Refaxination\Database::getLastOperation(); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 
 // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound
-function rfx_human_bytes(int $bytes): string
+function refaxination_human_bytes(int $bytes): string
 {
     if ($bytes <= 0) return '0 B';
     $units = ['B', 'KB', 'MB', 'GB', 'TB'];
@@ -52,14 +49,14 @@ $statuses = [ // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPr
     <div class="rfx-stat-card" style="border-left-color: <?php echo esc_attr($info['color']); ?>">
         <h3><?php echo esc_html($info['label']); ?></h3>
         <div class="rfx-count"><?php echo number_format($cnt); ?></div>
-        <div class="rfx-size"><?php echo esc_html(rfx_human_bytes($bytes)); ?></div>
+        <div class="rfx-size"><?php echo esc_html(refaxination_human_bytes($bytes)); ?></div>
         <div class="rfx-desc"><?php echo esc_html($info['desc']); ?></div>
     </div>
     <?php endforeach; ?>
     <div class="rfx-stat-card" style="border-left-color: #23282d">
         <h3><?php esc_html_e('Total', 'refaxination'); ?></h3>
         <div class="rfx-count"><?php echo number_format((int) $grandTotal); ?></div>
-        <div class="rfx-size"><?php echo esc_html(rfx_human_bytes((int) $grandBytes)); ?></div>
+        <div class="rfx-size"><?php echo esc_html(refaxination_human_bytes((int) $grandBytes)); ?></div>
         <div class="rfx-desc"><?php esc_html_e('All files in uploads/', 'refaxination'); ?></div>
     </div>
 </div>

@@ -29,8 +29,6 @@ class PostContentScanner implements ScannerInterface
 
         $upload      = wp_upload_dir();
         $uploadsPath = rtrim(wp_parse_url($upload['baseurl'], PHP_URL_PATH), '/') . '/';
-        $refsTable   = esc_sql( Database::refsTable() );
-
         $pathIndex = [];
         foreach ($fileBatch as $file) {
             $pathIndex[$file['relative_path']] = (int) $file['id'];
@@ -93,17 +91,16 @@ class PostContentScanner implements ScannerInterface
                         continue;
                     }
 
-                    // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                    // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                     $wpdb->query($wpdb->prepare(
-                        "INSERT IGNORE INTO {$refsTable}
-                         (file_id, source_type, source_id, context)
-                         VALUES (%d, %s, %d, %s)",
+                        "INSERT IGNORE INTO %i (file_id, source_type, source_id, context) VALUES (%d, %s, %d, %s)",
+                        Database::refsTable(),
                         $pathIndex[$relativePath],
                         SourceType::PostContent->value,
                         $postId,
                         'url_in_content',
                     ));
-                    // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                    // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                     $inserted++;
                 }
 
@@ -118,17 +115,16 @@ class PostContentScanner implements ScannerInterface
                         continue;
                     }
 
-                    // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                    // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                     $wpdb->query($wpdb->prepare(
-                        "INSERT IGNORE INTO {$refsTable}
-                         (file_id, source_type, source_id, context)
-                         VALUES (%d, %s, %d, %s)",
+                        "INSERT IGNORE INTO %i (file_id, source_type, source_id, context) VALUES (%d, %s, %d, %s)",
+                        Database::refsTable(),
                         $fileId,
                         SourceType::PostContent->value,
                         $postId,
                         'block_id',
                     ));
-                    // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                    // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                     $inserted++;
                 }
 

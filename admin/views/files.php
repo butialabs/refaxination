@@ -8,7 +8,6 @@ if (! defined('ABSPATH')) {
 
 global $wpdb;
 
-$filesTable  = esc_sql(\Refaxination\Database::filesTable()); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound, PluginCheck.Security.DirectDB.UnescapedDBParameter -- table name is sanitized via esc_sql()
 $perPage     = 50; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 $currentPage = max(1, intval( wp_unslash( $_GET['paged'] ?? 1 ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 $offset      = ($currentPage - 1) * $perPage; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
@@ -20,23 +19,25 @@ $search       = sanitize_text_field( wp_unslash( $_GET['rfx_search'] ?? '' ) ); 
 $validStatuses = ['pending', 'referenced', 'library_only', 'orphan', 'moved']; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 $validTypes    = ['image', 'video', 'audio', 'document', 'other']; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 
-$where = ['is_thumbnail = 0']; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
+$where     = ['is_thumbnail = 0']; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
+$queryArgs = [\Refaxination\Database::filesTable()]; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 
 if (in_array($statusFilter, $validStatuses, strict: true)) {
-    $where[] = $wpdb->prepare('status = %s', $statusFilter); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
+    $where[]     = 'status = %s';
+    $queryArgs[] = $statusFilter;
 }
 
 if (in_array($typeFilter, $validTypes, strict: true)) {
     $typeCondition = match ($typeFilter) { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
-        'image'    => "mime_type LIKE 'image/%'",
-        'video'    => "mime_type LIKE 'video/%'",
-        'audio'    => "mime_type LIKE 'audio/%'",
+        'image'    => "mime_type LIKE 'image/%%'",
+        'video'    => "mime_type LIKE 'video/%%'",
+        'audio'    => "mime_type LIKE 'audio/%%'",
         'document' => "mime_type IN ('application/pdf','application/msword',
                           'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
                           'application/vnd.ms-excel',
                           'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')",
-        'other'    => "mime_type NOT LIKE 'image/%' AND mime_type NOT LIKE 'video/%'
-                       AND mime_type NOT LIKE 'audio/%'
+        'other'    => "mime_type NOT LIKE 'image/%%' AND mime_type NOT LIKE 'video/%%'
+                       AND mime_type NOT LIKE 'audio/%%'
                        AND mime_type NOT IN ('application/pdf','application/msword',
                           'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
                           'application/vnd.ms-excel',
@@ -49,29 +50,31 @@ if (in_array($typeFilter, $validTypes, strict: true)) {
 }
 
 if ($search !== '') {
-    $where[] = $wpdb->prepare('relative_path LIKE %s', '%' . $wpdb->esc_like($search) . '%'); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
+    $where[]     = 'relative_path LIKE %s';
+    $queryArgs[] = '%' . $wpdb->esc_like($search) . '%';
 }
 
 $whereClause = 'WHERE ' . implode(' AND ', $where); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 
-// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
-$total = (int) $wpdb->get_var( "SELECT COUNT(*) FROM `{$filesTable}` {$whereClause}" ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
-// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+$total = (int) $wpdb->get_var( // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
+    $wpdb->prepare( "SELECT COUNT(*) FROM %i {$whereClause}", ...$queryArgs )
+);
+// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
-// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 $rows = $wpdb->get_results( // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
     $wpdb->prepare(
         "SELECT id, relative_path, filename, file_size, mime_type, status,
                 attachment_id, is_thumbnail, parent_id
-         FROM {$filesTable} {$whereClause}
+         FROM %i {$whereClause}
          ORDER BY relative_path ASC
          LIMIT %d OFFSET %d",
-        $perPage,
-        $offset
+        ...[...$queryArgs, $perPage, $offset]
     ),
     ARRAY_A
 );
-// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 $totalPages = (int) ceil($total / $perPage); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 
@@ -80,44 +83,45 @@ $refsByFile        = []; // phpcs:ignore WordPress.NamingConventions.PrefixAllGl
 $thumbnailsByParent = []; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 $fileIds           = array_column($rows ?? [], 'id'); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 if ($fileIds !== []) {
-    $refsTable    = esc_sql( \Refaxination\Database::refsTable() ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
     $placeholders = implode(',', array_fill(0, count($fileIds), '%d')); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
-    // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+    // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
     $refs         = $wpdb->get_results( // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
         $wpdb->prepare(
             "SELECT file_id, source_type, source_id, context
-             FROM `{$refsTable}`
+             FROM %i
              WHERE file_id IN ({$placeholders}) AND source_type != 'attachment'
              ORDER BY source_type, source_id",
+            \Refaxination\Database::refsTable(),
             ...$fileIds
         ),
         ARRAY_A
     );
-    // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+    // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
     foreach ($refs as $ref) { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- $refs loaded above
         $refsByFile[(int) $ref['file_id']][] = $ref; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
     }
 
     $thumbPlaceholders = implode(',', array_fill(0, count($fileIds), '%d')); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
-    // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+    // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
     $thumbRows         = $wpdb->get_results( // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
         $wpdb->prepare(
             "SELECT id, relative_path, file_size, mime_type, status, parent_id
-             FROM `{$filesTable}`
+             FROM %i
              WHERE is_thumbnail = 1 AND parent_id IN ({$thumbPlaceholders})
              ORDER BY parent_id, relative_path",
+            \Refaxination\Database::filesTable(),
             ...$fileIds
         ),
         ARRAY_A
     );
-    // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+    // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
     foreach ($thumbRows as $thumb) { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
         $thumbnailsByParent[(int) $thumb['parent_id']][] = $thumb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
     }
 }
 
 // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound
-function rfx_human_bytes_view(int $bytes): string
+function refaxination_human_bytes_view(int $bytes): string
 {
     if ($bytes <= 0) return '0 B';
     $units = ['B','KB','MB','GB','TB'];
@@ -126,7 +130,7 @@ function rfx_human_bytes_view(int $bytes): string
 }
 
 // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound
-function rfx_mime_icon(string $mime): string
+function refaxination_mime_icon(string $mime): string
 {
     return match (true) {
         str_starts_with($mime, 'image/') => '🖼',
@@ -226,9 +230,9 @@ $uploadsUrl = trailingslashit(wp_upload_dir()['baseurl']); // phpcs:ignore WordP
                class="rfx-file-link"><?php echo esc_html(mb_strimwidth($row['relative_path'], 0, 70, '…')); ?></a>
         </td>
         <td data-label="Type" title="<?php echo esc_attr($row['mime_type']); ?>">
-            <?php echo rfx_mime_icon( $row['mime_type'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- returns hardcoded emoji characters, no user input ?>
+            <?php echo refaxination_mime_icon( $row['mime_type'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- returns hardcoded emoji characters, no user input ?>
         </td>
-        <td data-label="Size"><?php echo esc_html(rfx_human_bytes_view((int) $row['file_size'])); ?></td>
+        <td data-label="Size"><?php echo esc_html(refaxination_human_bytes_view((int) $row['file_size'])); ?></td>
         <td data-label="Status">
             <span class="rfx-badge <?php echo esc_attr($statusClass); ?>">
                 <?php echo esc_html($row['status']); ?>
@@ -306,7 +310,7 @@ $uploadsUrl = trailingslashit(wp_upload_dir()['baseurl']); // phpcs:ignore WordP
                     <td class="rfx-path" title="<?php echo esc_attr($thumb['relative_path']); ?>">
                         <?php echo esc_html(mb_strimwidth($thumb['relative_path'], 0, 70, '…')); ?>
                     </td>
-                    <td><?php echo esc_html(rfx_human_bytes_view((int) $thumb['file_size'])); ?></td>
+                    <td><?php echo esc_html(refaxination_human_bytes_view((int) $thumb['file_size'])); ?></td>
                     <td>
                         <span class="rfx-badge <?php echo esc_attr($thumbStatusClass); ?>">
                             <?php echo esc_html($thumb['status']); ?>

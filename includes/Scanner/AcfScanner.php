@@ -115,7 +115,6 @@ class AcfScanner implements ScannerInterface
     {
         global $wpdb;
 
-        $refsTable = esc_sql( Database::refsTable() );
         $inserted  = 0;
 
         // ACF stores image/file fields as attachment ID in postmeta
@@ -139,18 +138,19 @@ class AcfScanner implements ScannerInterface
                 continue;
             }
 
-            // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             $wpdb->query($wpdb->prepare(
-                "INSERT IGNORE INTO {$refsTable}
+                "INSERT IGNORE INTO %i
                  (file_id, source_type, source_id, meta_key, context)
                  VALUES (%d, %s, %d, %s, %s)",
+                Database::refsTable(),
                 $fileId,
                 SourceType::Acf->value,
                 (int) $row['post_id'],
                 $field['name'],
                 'acf:' . $field['key'],
             ));
-            // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             $inserted++;
         }
 
@@ -161,7 +161,6 @@ class AcfScanner implements ScannerInterface
     {
         global $wpdb;
 
-        $refsTable = esc_sql( Database::refsTable() );
         $inserted  = 0;
 
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -198,18 +197,19 @@ class AcfScanner implements ScannerInterface
                     continue;
                 }
 
-                // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                 $wpdb->query($wpdb->prepare(
-                    "INSERT IGNORE INTO {$refsTable}
+                    "INSERT IGNORE INTO %i
                      (file_id, source_type, source_id, meta_key, context)
                      VALUES (%d, %s, %d, %s, %s)",
+                    Database::refsTable(),
                     $fileId,
                     SourceType::Acf->value,
                     (int) $row['post_id'],
                     $field['name'],
                     'acf_gallery:' . $field['key'],
                 ));
-                // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                 $inserted++;
             }
         }

@@ -12,7 +12,7 @@ class Admin
     {
         add_action('admin_menu',            [$this, 'addMenu']);
         add_action('admin_enqueue_scripts', [$this, 'enqueueAssets']);
-        add_action('wp_ajax_rfx_status_poll', [$this, 'ajaxStatusPoll']);
+        add_action('wp_ajax_refaxination_status_poll', [$this, 'ajaxStatusPoll']);
     }
 
     public function addMenu(): void
@@ -49,8 +49,8 @@ class Admin
 
         wp_set_script_translations('refaxination-admin', 'refaxination', REFAXINATION_DIR . 'languages/');
 
-        wp_localize_script('refaxination-admin', 'rfxAdmin', [
-            'nonce'   => wp_create_nonce('rfx_status_poll'),
+        wp_localize_script('refaxination-admin', 'refaxinationAdmin', [
+            'nonce'   => wp_create_nonce('refaxination_status_poll'),
             'ajaxurl' => admin_url('admin-ajax.php'),
         ]);
     }
@@ -106,7 +106,7 @@ class Admin
 
     public function ajaxStatusPoll(): void
     {
-        check_ajax_referer('rfx_status_poll');
+        check_ajax_referer('refaxination_status_poll');
 
         if (! current_user_can('manage_options')) {
             wp_send_json_error('Forbidden', 403);

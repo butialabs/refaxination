@@ -58,7 +58,6 @@ class YoastScanner implements ScannerInterface
     {
         global $wpdb;
 
-        $refsTable = esc_sql( Database::refsTable() );
         $inserted  = 0;
 
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -82,18 +81,19 @@ class YoastScanner implements ScannerInterface
                 continue;
             }
 
-            // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             $wpdb->query($wpdb->prepare(
-                "INSERT IGNORE INTO {$refsTable}
+                "INSERT IGNORE INTO %i
                  (file_id, source_type, source_id, meta_key, context)
                  VALUES (%d, %s, %d, %s, %s)",
+                Database::refsTable(),
                 $fileId,
                 SourceType::Yoast->value,
                 (int) $row['post_id'],
                 $row['meta_key'],
                 'yoast_post_image',
             ));
-            // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             $inserted++;
         }
 
@@ -108,7 +108,6 @@ class YoastScanner implements ScannerInterface
             return 0;
         }
 
-        $refsTable = esc_sql( Database::refsTable() );
         $inserted  = 0;
 
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -132,18 +131,19 @@ class YoastScanner implements ScannerInterface
                 continue;
             }
 
-            // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             $wpdb->query($wpdb->prepare(
-                "INSERT IGNORE INTO {$refsTable}
+                "INSERT IGNORE INTO %i
                  (file_id, source_type, source_id, meta_key, context)
                  VALUES (%d, %s, %d, %s, %s)",
+                Database::refsTable(),
                 $fileId,
                 SourceType::Yoast->value,
                 (int) $row['term_id'],
                 $row['meta_key'],
                 'yoast_term_image',
             ));
-            // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             $inserted++;
         }
 
@@ -154,7 +154,6 @@ class YoastScanner implements ScannerInterface
     {
         global $wpdb;
 
-        $refsTable = esc_sql( Database::refsTable() );
         $inserted  = 0;
 
         $raw = get_option('wpseo_social');
@@ -182,18 +181,19 @@ class YoastScanner implements ScannerInterface
                 continue;
             }
 
-            // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             $wpdb->query($wpdb->prepare(
-                "INSERT IGNORE INTO {$refsTable}
+                "INSERT IGNORE INTO %i
                  (file_id, source_type, source_id, meta_key, context)
                  VALUES (%d, %s, %d, %s, %s)",
+                Database::refsTable(),
                 $fileId,
                 SourceType::Yoast->value,
                 $optionId,
                 $key,
                 'yoast_global_image',
             ));
-            // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             $inserted++;
         }
 
@@ -214,18 +214,19 @@ class YoastScanner implements ScannerInterface
                 continue;
             }
 
-            // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             $wpdb->query($wpdb->prepare(
-                "INSERT IGNORE INTO {$refsTable}
+                "INSERT IGNORE INTO %i
                  (file_id, source_type, source_id, meta_key, context)
                  VALUES (%d, %s, %d, %s, %s)",
+                Database::refsTable(),
                 $fileId,
                 SourceType::Yoast->value,
                 $optionId,
                 $key,
                 'yoast_global_image',
             ));
-            // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             $inserted++;
         }
 

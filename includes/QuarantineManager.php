@@ -30,20 +30,16 @@ class QuarantineManager
     {
         global $wpdb;
 
-        $filesTable = esc_sql( Database::filesTable() );
-        $movesTable = esc_sql( Database::movesTable() );
+        $statusValues        = $includeLibraryOnly ? ['orphan', 'library_only'] : ['orphan'];
+        $statusPlaceholders  = implode(',', array_fill(0, count($statusValues), '%s'));
 
-        $statuses = ["'orphan'"];
-        if ($includeLibraryOnly) {
-            $statuses[] = "'library_only'";
-        }
-        $statusIn = implode(',', $statuses);
-
-        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
         $total = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-            "SELECT COUNT(*) FROM `{$filesTable}` WHERE status IN ({$statusIn}) AND status != 'moved'"
+            $wpdb->prepare(
+                "SELECT COUNT(*) FROM %i WHERE status IN ({$statusPlaceholders}) AND status != 'moved'",
+                Database::filesTable(),
+                ...$statusValues
+            )
         );
-        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 
         if ($total === 0) {
             \WP_CLI::success(__('No files to quarantine.', 'refaxination'));
@@ -73,19 +69,19 @@ class QuarantineManager
         $progress = $dryRun ? null : \WP_CLI\Utils\make_progress_bar('Quarantining', $total);
 
         do {
-            // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
             $batch = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                 $wpdb->prepare(
                     "SELECT id, relative_path, file_size
-                     FROM `{$filesTable}`
-                     WHERE status IN ({$statusIn}) AND status != 'moved'
+                     FROM %i
+                     WHERE status IN ({$statusPlaceholders}) AND status != 'moved'
                      ORDER BY id ASC
                      LIMIT %d",
+                    Database::filesTable(),
+                    ...$statusValues,
                     $batchSize,
                 ),
                 ARRAY_A
             );
-            // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 
             if ($batch === []) {
                 break;
@@ -103,7 +99,7 @@ class QuarantineManager
                     // translators: %1$s is the relative file path being quarantined (used for both source and destination).
                     \WP_CLI::line( sprintf( __( '  [DRY] uploads/%1$s → refaxination-orphans/%1$s', 'refaxination' ), $sourcePath ) );
                     // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-                    $wpdb->insert($movesTable, [
+                    $wpdb->insert(Database::movesTable(), [
                         'file_id'      => (int) $file['id'],
                         'operation_id' => $opId,
                         'direction'    => MoveDirection::Quarantine->value,
@@ -120,7 +116,7 @@ class QuarantineManager
                         $this->moveFile($sourcePath);
 
                         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-                        $wpdb->insert($movesTable, [
+                        $wpdb->insert(Database::movesTable(), [
                             'file_id'      => (int) $file['id'],
                             'operation_id' => $opId,
                             'direction'    => MoveDirection::Quarantine->value,
@@ -132,7 +128,7 @@ class QuarantineManager
                         ]);
 
                         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-                        $wpdb->update($filesTable, [
+                        $wpdb->update(Database::filesTable(), [
                             'status'   => 'moved',
                             'moved_at' => current_time('mysql'),
                         ], ['id' => (int) $file['id']]);
@@ -177,24 +173,34 @@ class QuarantineManager
     {
         global $wpdb;
 
-        $filesTable = esc_sql( Database::filesTable() );
-        $movesTable = esc_sql( Database::movesTable() );
-
-        $where = $all
-            ? "WHERE f.status = 'moved'"
-            : $wpdb->prepare( "WHERE f.id = %d AND f.status = 'moved'", $fileId );
-
-        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-        $rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-            "SELECT f.id, f.file_size, m.source_path, m.dest_path
-             FROM `{$filesTable}` f
-             INNER JOIN `{$movesTable}` m
-                ON m.file_id = f.id AND m.direction = 'quarantine' AND m.is_dry_run = 0
-             {$where}
-             ORDER BY m.moved_at DESC",
-            ARRAY_A
-        );
-        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        if ($all) {
+            $rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                $wpdb->prepare(
+                    "SELECT f.id, f.file_size, m.source_path, m.dest_path
+                     FROM %i f
+                     INNER JOIN %i m ON m.file_id = f.id AND m.direction = 'quarantine' AND m.is_dry_run = 0
+                     WHERE f.status = 'moved'
+                     ORDER BY m.moved_at DESC",
+                    Database::filesTable(),
+                    Database::movesTable()
+                ),
+                ARRAY_A
+            );
+        } else {
+            $rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                $wpdb->prepare(
+                    "SELECT f.id, f.file_size, m.source_path, m.dest_path
+                     FROM %i f
+                     INNER JOIN %i m ON m.file_id = f.id AND m.direction = 'quarantine' AND m.is_dry_run = 0
+                     WHERE f.id = %d AND f.status = 'moved'
+                     ORDER BY m.moved_at DESC",
+                    Database::filesTable(),
+                    Database::movesTable(),
+                    $fileId
+                ),
+                ARRAY_A
+            );
+        }
 
         if ($rows === []) {
             \WP_CLI::error(__('No files to restore.', 'refaxination'));
@@ -244,7 +250,7 @@ class QuarantineManager
                 }
 
                 // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-                $wpdb->insert($movesTable, [
+                $wpdb->insert(Database::movesTable(), [
                     'file_id'      => (int) $row['id'],
                     'operation_id' => $opId,
                     'direction'    => MoveDirection::Restore->value,
@@ -256,7 +262,7 @@ class QuarantineManager
                 ]);
 
                 // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-                $wpdb->update($filesTable, [
+                $wpdb->update(Database::filesTable(), [
                     'status'   => 'orphan',
                     'moved_at' => null,
                 ], ['id' => (int) $row['id']]);
