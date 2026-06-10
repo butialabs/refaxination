@@ -284,6 +284,7 @@ class Cli extends \WP_CLI_Command
         $statusValues       = $includeLibraryOnly ? ['orphan', 'library_only'] : ['orphan'];
         $statusPlaceholders = implode(',', array_fill(0, count($statusValues), '%s'));
 
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
         return (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             $wpdb->prepare(
                 "SELECT COUNT(*) FROM %i WHERE status IN ({$statusPlaceholders})",
@@ -291,5 +292,6 @@ class Cli extends \WP_CLI_Command
                 ...$statusValues
             )
         );
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
     }
 }

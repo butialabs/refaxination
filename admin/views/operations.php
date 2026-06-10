@@ -8,7 +8,7 @@ if (! defined('ABSPATH')) {
 
 global $wpdb;
 
-$ops = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+$ops = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
     $wpdb->prepare(
         'SELECT * FROM %i ORDER BY started_at DESC LIMIT 50',
         \Refaxination\Database::opsTable()

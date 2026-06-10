@@ -108,8 +108,9 @@ class AttachmentScanner implements ScannerInterface
                  INNER JOIN {$wpdb->postmeta} pm
                     ON pm.post_id = f.attachment_id AND pm.meta_key = '_wp_attachment_metadata'
                  WHERE f.attachment_id IS NOT NULL
-                   AND mime_type LIKE 'image/%%'",
-                Database::filesTable()
+                   AND mime_type LIKE %s",
+                Database::filesTable(),
+                'image/%'
             ),
             ARRAY_A
         );

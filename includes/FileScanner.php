@@ -203,8 +203,9 @@ class FileScanner
 
         $candidates = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             $wpdb->prepare(
-                "SELECT id, relative_path, filename, extension FROM %i WHERE is_thumbnail = 0 AND mime_type LIKE 'image/%%'",
-                Database::filesTable()
+                "SELECT id, relative_path, filename, extension FROM %i WHERE is_thumbnail = 0 AND mime_type LIKE %s",
+                Database::filesTable(),
+                'image/%'
             ),
             ARRAY_A
         );
@@ -223,7 +224,7 @@ class FileScanner
             $placeholders = implode(',', array_fill(0, count($chunk), '%s'));
             $paths        = array_values($chunk);
 
-            // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+            // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
             $parents = $wpdb->get_results(
                 $wpdb->prepare(
                     "SELECT id, relative_path FROM %i WHERE relative_path IN ({$placeholders})",
@@ -232,7 +233,7 @@ class FileScanner
                 ),
                 ARRAY_A
             );
-            // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+            // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 
             $parentIndex = array_column($parents, 'id', 'relative_path');
 

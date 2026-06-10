@@ -46,9 +46,9 @@ class Reporter
             $wpdb->prepare(
                 "SELECT
                     CASE
-                        WHEN mime_type LIKE 'image/%%'             THEN 'image'
-                        WHEN mime_type LIKE 'video/%%'             THEN 'video'
-                        WHEN mime_type LIKE 'audio/%%'             THEN 'audio'
+                        WHEN mime_type LIKE %s             THEN 'image'
+                        WHEN mime_type LIKE %s             THEN 'video'
+                        WHEN mime_type LIKE %s             THEN 'audio'
                         WHEN mime_type IN (
                             'application/pdf',
                             'application/msword',
@@ -57,7 +57,7 @@ class Reporter
                             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                             'application/vnd.ms-powerpoint',
                             'application/vnd.openxmlformats-officedocument.presentationml.presentation'
-                        )                                         THEN 'document'
+                        )                                 THEN 'document'
                         ELSE 'other'
                     END AS type,
                     COUNT(*)        AS total,
@@ -65,6 +65,9 @@ class Reporter
                  FROM %i
                  GROUP BY type
                  ORDER BY total_bytes DESC",
+                'image/%',
+                'video/%',
+                'audio/%',
                 Database::filesTable()
             ),
             ARRAY_A

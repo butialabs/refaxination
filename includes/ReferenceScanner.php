@@ -63,11 +63,10 @@ class ReferenceScanner
             'sources' => $scannerNames,
         ]);
 
-        $total = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-            $resume
-                ? $wpdb->prepare( 'SELECT COUNT(*) FROM %i WHERE scanned_refs_at IS NULL', Database::filesTable() )
-                : $wpdb->prepare( 'SELECT COUNT(*) FROM %i', Database::filesTable() )
-        );
+        $countSql = $resume
+            ? $wpdb->prepare( 'SELECT COUNT(*) FROM %i WHERE scanned_refs_at IS NULL', Database::filesTable() )
+            : $wpdb->prepare( 'SELECT COUNT(*) FROM %i', Database::filesTable() );
+        $total = (int) $wpdb->get_var( $countSql ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
 
         Database::updateOperation($opId, ['items_total' => $total]);
 
@@ -84,7 +83,7 @@ class ReferenceScanner
         do {
             $whereClause = $resume ? 'WHERE scanned_refs_at IS NULL' : '';
 
-            // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
             $batch = $wpdb->get_results(
                 $wpdb->prepare(
                     "SELECT id, relative_path, attachment_id
@@ -98,7 +97,7 @@ class ReferenceScanner
                 ),
                 ARRAY_A
             );
-            // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 
             if ($batch === []) {
                 break;

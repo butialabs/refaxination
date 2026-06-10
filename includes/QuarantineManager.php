@@ -33,6 +33,7 @@ class QuarantineManager
         $statusValues        = $includeLibraryOnly ? ['orphan', 'library_only'] : ['orphan'];
         $statusPlaceholders  = implode(',', array_fill(0, count($statusValues), '%s'));
 
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
         $total = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             $wpdb->prepare(
                 "SELECT COUNT(*) FROM %i WHERE status IN ({$statusPlaceholders}) AND status != 'moved'",
@@ -40,6 +41,7 @@ class QuarantineManager
                 ...$statusValues
             )
         );
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 
         if ($total === 0) {
             \WP_CLI::success(__('No files to quarantine.', 'refaxination'));
@@ -69,6 +71,7 @@ class QuarantineManager
         $progress = $dryRun ? null : \WP_CLI\Utils\make_progress_bar('Quarantining', $total);
 
         do {
+            // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
             $batch = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                 $wpdb->prepare(
                     "SELECT id, relative_path, file_size
@@ -82,6 +85,7 @@ class QuarantineManager
                 ),
                 ARRAY_A
             );
+            // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 
             if ($batch === []) {
                 break;

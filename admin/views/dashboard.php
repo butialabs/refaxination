@@ -8,7 +8,7 @@ if (! defined('ABSPATH')) {
 
 global $wpdb;
 
-$stats = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+$stats = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
     $wpdb->prepare(
         'SELECT status, COUNT(*) AS cnt, SUM(file_size) AS total_bytes FROM %i GROUP BY status',
         \Refaxination\Database::filesTable()
