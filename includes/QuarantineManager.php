@@ -79,9 +79,7 @@ class QuarantineManager
                      WHERE status IN ({$statusPlaceholders}) AND status != 'moved'
                      ORDER BY id ASC
                      LIMIT %d",
-                    Database::filesTable(),
-                    ...$statusValues,
-                    $batchSize,
+                    ...array_merge( [ Database::filesTable() ], $statusValues, [ $batchSize ] ),
                 ),
                 ARRAY_A
             );
