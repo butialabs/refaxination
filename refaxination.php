@@ -4,7 +4,7 @@
  * Plugin Name:       Refaxination
  * Plugin URI:        https://github.com/butialabs/refaxination
  * Description:       Audits and manages orphaned files in Uploads. All operations via WP-CLI.
- * Version:           0.0.4
+ * Version:           1.0.0
  * Requires at least: 6.5
  * Tested up to:      7.0
  * Requires PHP:      8.2
@@ -21,7 +21,7 @@ if (! defined('ABSPATH')) {
     exit;
 }
 
-define('REFAXINATION_VERSION', '0.0.4');
+define('REFAXINATION_VERSION', '1.0.0');
 define('REFAXINATION_DIR', plugin_dir_path(__FILE__));
 define('REFAXINATION_URL', plugin_dir_url(__FILE__));
 
