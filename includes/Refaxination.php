@@ -20,6 +20,8 @@ class Refaxination
 
     public function init(): void
     {
+        add_action('init', [$this, 'loadTextdomain']);
+
         Database::install();
 
         if (is_admin()) {
@@ -30,5 +32,14 @@ class Refaxination
             \WP_CLI::add_command('refaxination', Cli\Cli::class);
             \WP_CLI::add_command('refaxination scan', Cli\ScanCommand::class);
         }
+    }
+
+    public function loadTextdomain(): void
+    {
+        load_plugin_textdomain(
+            'refaxination',
+            false,
+            dirname(plugin_basename(REFAXINATION_DIR . 'refaxination.php')) . '/languages'
+        );
     }
 }

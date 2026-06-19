@@ -1,732 +1,835 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Refaxination 1.0.0\n"
-"Report-Msgid-Bugs-To: https://github.com/renanb/refaxination/issues\n"
-"POT-Creation-Date: 2026-05-31T13:30+00:00\n"
-"PO-Revision-Date: 2026-05-31T13:30+00:00\n"
-"Last-Translator: \n"
-"Language-Team: Portuguese (Brazil) <>\n"
-"Language: pt_BR\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Domain: refaxination\n"
+"Project-Id-Version: Refaxination 1.0.1"
+"Report-Msgid-Bugs-To: https://github.com/butialabs/refaxination/issues"
+"POT-Creation-Date: 2026-06-19T00:00+00:00"
+"PO-Revision-Date: 2026-06-19T00:00+00:00"
+"Last-Translator: "
+"Language-Team: Portuguese (Brazil) <>"
+"Language: pt_BR"
+"MIME-Version: 1.0"
+"Content-Type: text/plain; charset=UTF-8"
+"Content-Transfer-Encoding: 8bit"
+"Plural-Forms: nplurals=2; plural=(n > 1);"
+"X-Domain: refaxination"
 
-#: admin/Admin.php
+#. Plugin Name of the plugin
+#: refaxination.php
+#: admin/Admin.php:21
+#: admin/Admin.php:22
+#: admin/Admin.php:80
 msgid "Refaxination"
 msgstr "Refaxination"
 
-#: admin/Admin.php
+#. Plugin URI of the plugin
+#: refaxination.php
+msgid "https://github.com/butialabs/refaxination"
+msgstr "https://github.com/butialabs/refaxination"
+
+#. Description of the plugin
+#: refaxination.php
+msgid "Audits and manages orphaned files in Uploads. All operations via WP-CLI."
+msgstr "Audita e gerencia arquivos órfãos em Uploads. Todas as operações via WP-CLI."
+
+#. Author of the plugin
+#: refaxination.php
+msgid "Butiá Labs"
+msgstr "Butiá Labs"
+
+#. Author URI of the plugin
+#: refaxination.php
+msgid "https://butialabs.com"
+msgstr "https://butialabs.com"
+
+#: admin/Admin.php:61
 msgid "Access denied."
 msgstr "Acesso negado."
 
-#: admin/Admin.php
+#: admin/Admin.php:67
 msgid "Dashboard"
 msgstr "Painel"
 
-#: admin/Admin.php
+#: admin/Admin.php:68
 msgid "Files"
 msgstr "Arquivos"
 
-#: admin/Admin.php
+#: admin/Admin.php:69
 msgid "Operations"
 msgstr "Operações"
 
-#: admin/views/partials/running-operation.php
-msgid "Running"
-msgstr "Em execução"
-
-#: admin/views/partials/running-operation.php admin/assets/refaxination.js
-msgid "Counting files…"
-msgstr "Contando arquivos…"
-
-#: admin/views/partials/running-operation.php admin/assets/refaxination.js
-msgid "Detecting thumbnails…"
-msgstr "Detectando miniaturas…"
-
-#: admin/views/partials/running-operation.php admin/assets/refaxination.js includes/FileScanner.php
-msgid "Indexing"
-msgstr "Indexando"
-
-#: admin/views/partials/running-operation.php cli/Cli.php
-msgid "Running operation:"
-msgstr "Operação em execução:"
-
-#: admin/views/partials/running-operation.php
-msgid "started at"
-msgstr "iniciada em"
-
-#: admin/views/partials/running-operation.php admin/views/files.php
-msgid "Status:"
-msgstr "Status:"
-
-#: admin/views/partials/running-operation.php
-msgid "files"
-msgstr "arquivos"
-
-#: admin/views/dashboard.php admin/views/files.php admin/views/operations.php
-msgid "Status"
-msgstr "Status"
-
-#: admin/views/dashboard.php admin/views/files.php
+#: admin/views/dashboard.php:34
+#: admin/views/files.php:144
+#: includes/Enum/FileStatus.php:19
 msgid "Referenced"
 msgstr "Referenciado"
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:34
 msgid "Used in posts, pages or options"
 msgstr "Usado em posts, páginas ou opções"
 
-#: admin/views/dashboard.php admin/views/files.php
+#: admin/views/dashboard.php:35
+#: admin/views/files.php:144
+#: includes/Enum/FileStatus.php:20
 msgid "Library Only"
 msgstr "Apenas na Biblioteca"
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:35
 msgid "In the Media Library but not referenced in content"
 msgstr "Na Biblioteca de Mídia mas não referenciado no conteúdo"
 
-#: admin/views/dashboard.php admin/views/files.php
+#: admin/views/dashboard.php:36
+#: admin/views/files.php:144
+#: includes/Enum/FileStatus.php:21
 msgid "Orphan"
 msgstr "Órfão"
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:36
 msgid "No references found"
 msgstr "Nenhuma referência encontrada"
 
-#: admin/views/dashboard.php admin/views/files.php
+#: admin/views/dashboard.php:37
+#: admin/views/files.php:144
+#: includes/Enum/FileStatus.php:22
 msgid "Moved"
 msgstr "Movido"
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:37
 msgid "Already sent to orphans/"
 msgstr "Já enviado para orphans/"
 
-#: admin/views/dashboard.php admin/views/files.php
+#: admin/views/dashboard.php:38
+#: admin/views/files.php:144
+#: includes/Enum/FileStatus.php:18
 msgid "Pending"
 msgstr "Pendente"
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:38
 msgid "Waiting for reference scan"
 msgstr "Aguardando varredura de referências"
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:42
 msgid "File summary"
 msgstr "Resumo dos arquivos"
 
-#: admin/views/dashboard.php admin/views/operations.php
+#: admin/views/dashboard.php:57
+#: admin/views/operations.php:35
 msgid "Total"
 msgstr "Total"
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:60
 msgid "All files in uploads/"
 msgstr "Todos os arquivos em uploads/"
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:65
 msgid "Last completed operation"
 msgstr "Última operação concluída"
 
-#: admin/views/dashboard.php admin/views/operations.php
+#: admin/views/dashboard.php:68
+#: admin/views/files.php:188
+#: admin/views/operations.php:32
 msgid "Type"
 msgstr "Tipo"
 
-#: admin/views/dashboard.php admin/views/operations.php
+#: admin/views/dashboard.php:72
+#: admin/views/dashboard.php:106
+#: admin/views/files.php:190
+#: admin/views/files.php:285
+#: admin/views/operations.php:33
+msgid "Status"
+msgstr "Status"
+
+#: admin/views/dashboard.php:76
+#: admin/views/operations.php:37
 msgid "Duration"
 msgstr "Duração"
 
-#: admin/views/dashboard.php admin/views/operations.php
+#: admin/views/dashboard.php:80
+#: admin/views/operations.php:34
 msgid "Processed"
 msgstr "Processados"
 
-#: admin/views/dashboard.php admin/views/operations.php
+#: admin/views/dashboard.php:84
+#: admin/views/operations.php:36
 msgid "Errors"
 msgstr "Erros"
 
-#: admin/views/dashboard.php admin/views/operations.php
+#: admin/views/dashboard.php:88
+#: admin/views/operations.php:39
 msgid "Completed at"
 msgstr "Concluído em"
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:94
 msgid "WP-CLI command builder"
 msgstr "Construtor de comandos WP-CLI"
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:95
 msgid "Select a command, configure its options, and copy the result to your terminal. All actions run via SSH/WP-CLI, this interface is read-only."
 msgstr "Selecione um comando, configure as opções e copie o resultado para o terminal. Todas as ações são executadas via SSH/WP-CLI; esta interface é somente leitura."
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:100
 msgid "Scan files"
-msgstr "Varrer arquivos"
+msgstr "Buscar arquivos"
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:101
 msgid "Scan references"
-msgstr "Varrer referências"
+msgstr "Buscar referências"
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:102
 msgid "Quarantine"
 msgstr "Quarentena"
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:103
 msgid "Restore"
 msgstr "Restaurar"
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:104
 msgid "Report"
 msgstr "Relatório"
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:105
 msgid "Reset"
 msgstr "Resetar"
 
 #. translators: HTML tags <strong> and <code> must be preserved
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:116
 msgid "<strong>Step 1 of 2.</strong> Recursively walks <code>wp-content/uploads/</code>, indexes every file (path, size, MIME type) and automatically detects WordPress-generated thumbnails. Must run before scanning references."
-msgstr "<strong>Passo 1 de 2.</strong> Percorre recursivamente <code>wp-content/uploads/</code>, indexa cada arquivo (caminho, tamanho, tipo MIME) e detecta automaticamente as miniaturas geradas pelo WordPress. Deve ser executado antes de varrer referências."
+msgstr "<strong>Passo 1 de 2.</strong> Rastreia recursivamente <code>wp-content/uploads/</code>, indexa cada arquivo (caminho, tamanho, tipo MIME) e detecta automaticamente as miniaturas geradas pelo WordPress. Deve ser executado antes de buscar referências."
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:125
+#: admin/views/dashboard.php:193
+#: admin/views/dashboard.php:297
 msgid "Batch size"
 msgstr "Tamanho do lote"
 
 #. translators: HTML tag <strong> must be preserved
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:132
 msgid "Files inserted per database transaction. Smaller batches use less RAM; larger batches are faster. <strong>Default: 100.</strong> Use 50 or less on low-memory servers."
 msgstr "Arquivos inseridos por transação no banco de dados. Lotes menores usam menos RAM; lotes maiores são mais rápidos. <strong>Padrão: 100.</strong> Use 50 ou menos em servidores com pouca memória."
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:136
+#: admin/views/dashboard.php:204
+#: admin/views/dashboard.php:308
 msgid "Files per batch:"
 msgstr "Arquivos por lote:"
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:145
 msgid "Start fresh"
 msgstr "Começar do zero"
 
 #. translators: HTML tag <strong> must be preserved
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:152
 msgid "Clears all previous scan data before starting. Use for a clean re-index. <strong>Cannot be combined with --resume.</strong>"
-msgstr "Limpa todos os dados de varredura anteriores antes de iniciar. Use para uma re-indexação limpa. <strong>Não pode ser combinado com --resume.</strong>"
+msgstr "Limpa todos os dados buscados anteriormente antes de iniciar. Use para uma re-indexação limpa. <strong>Não pode ser combinado com --resume.</strong>"
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:156
 msgid "⚠️ All previous scan data will be deleted."
-msgstr "⚠️ Todos os dados de varredura anteriores serão excluídos."
+msgstr "⚠️ Todos os dados anteriores serão excluídos."
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:164
+#: admin/views/dashboard.php:213
 msgid "Resume interrupted scan"
 msgstr "Retomar varredura interrompida"
 
 #. translators: HTML tags <code> and <strong> must be preserved
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:171
 msgid "Continues from where it stopped after a crash or interruption. Uses the cursor saved in the last <code>interrupted</code> operation. <strong>Cannot be combined with --reset.</strong>"
-msgstr "Continua de onde parou após uma falha ou interrupção. Usa o cursor salvo na última operação <code>interrupted</code>. <strong>Não pode ser combinado com --reset.</strong>"
+msgstr "Continua de onde parou após uma falha. Usa a referencia salva na última operação <code>interrupted</code>. <strong>Não pode ser combinado com --reset.</strong>"
 
-#. translators: HTML tags <strong> and <em> must be preserved
-#: admin/views/dashboard.php
+#. translators: HTML tags <strong>, <em> must be preserved
+#: admin/views/dashboard.php:184
 msgid "<strong>Step 2 of 2.</strong> Searches the database for every place each indexed file is referenced: posts, post meta, theme options, SEO plugins, podcast, and ACF/Yoast fields. Classifies each file as <em>referenced</em>, <em>library only</em>, or <em>orphan</em>. Requires the file scan to have run first."
 msgstr "<strong>Passo 2 de 2.</strong> Pesquisa no banco de dados cada lugar em que um arquivo indexado é referenciado: posts, post meta, opções do tema, plugins de SEO, podcast e campos ACF/Yoast. Classifica cada arquivo como <em>referenciado</em>, <em>apenas na biblioteca</em> ou <em>órfão</em>. Requer que a varredura de arquivos tenha sido executada primeiro."
 
 #. translators: HTML tag <strong> must be preserved
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:200
 msgid "Files processed per iteration. <strong>Default: 100.</strong> Reduce on high-post-count sites to avoid query timeouts."
-msgstr "Arquivos processados por iteração. <strong>Padrão: 100.</strong> Reduza em sites com muitos posts para evitar timeouts de consulta."
+msgstr "Arquivos processados por interação. <strong>Padrão: 100.</strong> Reduza em sites com muitos posts para evitar timeouts de consulta."
 
 #. translators: HTML tag <code> must be preserved
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:220
 msgid "Skips files already scanned (where <code>scanned_refs_at</code> is not null). Safe to run multiple times without duplicating references."
-msgstr "Ignora arquivos já varridos (onde <code>scanned_refs_at</code> não é nulo). Seguro para executar várias vezes sem duplicar referências."
+msgstr "Ignora arquivos já buscados (onde <code>scanned_refs_at</code> não é nulo). Seguro para executar várias vezes sem duplicar referências."
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:229
 msgid "Restrict scanners"
 msgstr "Restringir scanners"
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:234
 msgid "By default all available scanners run. Select only the ones you need to speed up the process or re-scan a specific source. Scanners for inactive plugins (ACF, Yoast, TSF, SSP) are skipped automatically."
-msgstr "Por padrão, todos os scanners disponíveis são executados. Selecione apenas os necessários para acelerar o processo ou re-varrer uma fonte específica. Scanners de plugins inativos (ACF, Yoast, TSF, SSP) são ignorados automaticamente."
+msgstr "Por padrão, todos os scanners disponíveis são executados. Selecione apenas os necessários para acelerar o processo ou buscar uma fonte específica. Scanners de plugins inativos (ACF, Yoast, TSF, SSP) são ignorados automaticamente."
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:239
 msgid "Attachments"
 msgstr "Anexos"
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:239
 msgid "Populates attachment_id and confirms WP-registered thumbnails"
 msgstr "Preenche attachment_id e confirma miniaturas registradas no WP"
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:240
 msgid "Post Meta"
 msgstr "Post Meta"
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:240
 msgid "_thumbnail_id and URLs in post meta values"
 msgstr "_thumbnail_id e URLs nos valores de post meta"
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:241
 msgid "Post Content"
 msgstr "Conteúdo do Post"
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:241
 msgid "<img>, <a>, Gutenberg blocks and shortcodes in posts/pages"
 msgstr "<img>, <a>, blocos do Gutenberg e shortcodes em posts/páginas"
 
-#: admin/views/dashboard.php admin/views/operations.php
+#: admin/views/dashboard.php:242
+#: admin/views/operations.php:40
 msgid "Options"
 msgstr "Opções"
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:242
 msgid "Widgets, theme_mods and wp_options with upload URLs"
 msgstr "Widgets, theme_mods e wp_options com URLs de upload"
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:243
 msgid "The SEO Framework"
 msgstr "The SEO Framework"
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:243
 msgid "Social images from The SEO Framework (TSF)"
 msgstr "Imagens sociais do The SEO Framework (TSF)"
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:244
 msgid "SSP Podcasting"
 msgstr "SSP Podcasting"
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:244
 msgid "Audio files in Seriously Simple Podcasting"
 msgstr "Arquivos de áudio no Seriously Simple Podcasting"
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:245
 msgid "ACF"
 msgstr "ACF"
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:245
 msgid "Image, file, and gallery fields in Advanced Custom Fields"
 msgstr "Campos de imagem, arquivo e galeria no Advanced Custom Fields"
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:246
 msgid "Yoast SEO"
 msgstr "Yoast SEO"
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:246
 msgid "og/twitter images in Yoast SEO"
 msgstr "Imagens og/twitter no Yoast SEO"
 
 #. translators: HTML tags <strong>, <code> and <br/> must be preserved
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:266
 msgid "<strong>Important:</strong> The operation is <strong>fully reversible</strong> with the Restore command. Every move is logged in the audit table.<br/><strong>BUT</strong> always make a backup beforehand and run with <code>--dry-run</code> first."
 msgstr "<strong>Importante:</strong> A operação é <strong>totalmente reversível</strong> com o comando Restaurar. Cada movimentação é registrada na tabela de auditoria.<br/><strong>MAS</strong> sempre faça um backup antes e execute com <code>--dry-run</code> primeiro."
 
 #. translators: HTML tags <strong> and <code> must be preserved
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:272
 msgid "Moves files classified as <strong>orphans</strong> from <code>uploads/</code> to <code>wp-content/orphans/</code>, preserving the folder structure."
 msgstr "Move os arquivos classificados como <strong>órfãos</strong> de <code>uploads/</code> para <code>wp-content/orphans/</code>, preservando a estrutura de pastas."
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:281
+#: admin/views/dashboard.php:385
 msgid "Dry run"
 msgstr "Simulação"
 
 #. translators: HTML tag <strong> must be preserved
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:288
 msgid "Shows exactly what would be moved <strong>without moving any files</strong>. Strongly recommended before the first real run to validate the orphan list."
 msgstr "Mostra exatamente o que seria movido <strong>sem mover nenhum arquivo</strong>. Fortemente recomendado antes da primeira execução real para validar a lista de órfãos."
 
 #. translators: HTML tag <strong> must be preserved
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:304
 msgid "Files moved per iteration. <strong>Default: 100.</strong> Reduce if the server has a request time limit or limited temporary disk space."
 msgstr "Arquivos movidos por iteração. <strong>Padrão: 100.</strong> Reduza se o servidor tiver limite de tempo de requisição ou pouco espaço em disco temporário."
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:317
 msgid "Include \"library only\" files"
 msgstr "Incluir arquivos \"apenas na biblioteca\""
 
 #. translators: HTML tag <em> must be preserved
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:324
 msgid "By default only <em>orphans</em> are moved. With this option, files that are in the Media Library but not referenced in any content are also included. Use with caution, these files may have been uploaded intentionally."
 msgstr "Por padrão, apenas <em>órfãos</em> são movidos. Com esta opção, arquivos que estão na Biblioteca de Mídia mas não referenciados em nenhum conteúdo também são incluídos. Use com cuidado, pois esses arquivos podem ter sido enviados intencionalmente."
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:328
 msgid "⚠️ Media Library files not referenced in content will be included."
 msgstr "⚠️ Arquivos da Biblioteca de Mídia não referenciados no conteúdo serão incluídos."
 
 #. translators: HTML tags <code> must be preserved
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:340
 msgid "Reverses quarantine by moving files back from <code>orphans/</code> to their original paths in <code>uploads/</code>. Source and destination paths are read from the audit log, no information is lost."
 msgstr "Reverte a quarentena movendo os arquivos de volta de <code>orphans/</code> para seus caminhos originais em <code>uploads/</code>. Os caminhos de origem e destino são lidos do log de auditoria; nenhuma informação é perdida."
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:349
 msgid "Restore all"
 msgstr "Restaurar tudo"
 
 #. translators: HTML tags <code> must be preserved
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:356
 msgid "Restores all files with status <code>moved</code> back to their original locations. Incompatible with <code>--file-id</code>."
 msgstr "Restaura todos os arquivos com status <code>moved</code> para seus locais originais. Incompatível com <code>--file-id</code>."
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:365
 msgid "Specific file"
 msgstr "Arquivo específico"
 
 #. translators: HTML tags <code> must be preserved
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:372
 msgid "Restores a single file by its <code>refaxination_files</code> ID. Useful when a specific file was moved by mistake. Incompatible with <code>--all</code>."
 msgstr "Restaura um único arquivo pelo seu ID em <code>refaxination_files</code>. Útil quando um arquivo específico foi movido por engano. Incompatível com <code>--all</code>."
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:376
 msgid "File ID:"
 msgstr "ID do arquivo:"
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:390
 msgid "Shows what would be restored without moving any files. Useful to confirm paths before the real restore."
 msgstr "Mostra o que seria restaurado sem mover nenhum arquivo. Útil para confirmar os caminhos antes da restauração real."
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:400
 msgid "Displays a report of indexed files. Can be filtered by status, grouped by file type, and exported in multiple formats, including CSV for spreadsheet analysis."
 msgstr "Exibe um relatório dos arquivos indexados. Pode ser filtrado por status, agrupado por tipo de arquivo e exportado em vários formatos, incluindo CSV para análise em planilhas."
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:408
 msgid "Output format"
 msgstr "Formato de saída"
 
 #. translators: HTML tags <strong> and <br> must be preserved
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:415
 msgid "<strong>table</strong> (default) visual table in the terminal.<br><strong>json</strong> JSON output for scripts and integrations.<br><strong>csv</strong> export to file, ideal for spreadsheets."
 msgstr "<strong>table</strong> (padrão) tabela visual no terminal.<br><strong>json</strong> saída JSON para scripts e integrações.<br><strong>csv</strong> exportação para arquivo, ideal para planilhas."
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:431
 msgid "Filter by status"
 msgstr "Filtrar por status"
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:436
 msgid "Shows only files with the selected status."
 msgstr "Mostra apenas os arquivos com o status selecionado."
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:453
 msgid "Group by type"
 msgstr "Agrupar por tipo"
 
 #. translators: HTML tag <code> must be preserved
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:460
 msgid "Aggregates files by MIME category: image, video, audio, document, other. Shows count and total size per group. Cannot be combined with <code>--status</code>."
 msgstr "Agrega arquivos por categoria MIME: image, video, audio, document, other. Mostra a contagem e o tamanho total por grupo. Não pode ser combinado com <code>--status</code>."
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:471
 msgid "Clears scan data to allow a fresh re-index. By default preserves the moves table (audit log). Use with care."
 msgstr "Limpa os dados de varredura para permitir uma re-indexação. Por padrão, preserva a tabela de movimentações (log de auditoria). Use com cuidado."
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:479
 msgid "Recreate tables"
 msgstr "Recriar tabelas"
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:484
 msgid "Drops and recreates all plugin tables, including the moves table. Use only if there is a schema problem or data corruption."
 msgstr "Dropa e recria todas as tabelas do plugin, incluindo a tabela de movimentações. Use apenas se houver problema de esquema ou corrupção de dados."
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:487
 msgid "⚠️ The entire quarantine move history will be deleted."
 msgstr "⚠️ Todo o histórico de movimentações de quarentena será excluído."
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:495
 msgid "Skip confirmation"
 msgstr "Pular confirmação"
 
 #. translators: HTML tag <code> must be preserved
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:502
 msgid "By default the command asks for interactive confirmation in the terminal. Use <code>--confirm</code> to skip that step in automated scripts."
 msgstr "Por padrão, o comando solicita confirmação interativa no terminal. Use <code>--confirm</code> para pular essa etapa em scripts automatizados."
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:513
 msgid "Shows the currently running operation (if any) and a summary of the last completed operation, including processed file count, errors, and duration. Useful for monitoring long scans from another terminal."
 msgstr "Mostra a operação em execução (se houver) e um resumo da última operação concluída, incluindo a contagem de arquivos processados, erros e duração. Útil para monitorar varreduras longas a partir de outro terminal."
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:517
 msgid "No options available, this command takes no arguments."
 msgstr "Nenhuma opção disponível, este comando não aceita argumentos."
 
-#: admin/views/dashboard.php
+#: admin/views/dashboard.php:523
 msgid "Generated command"
 msgstr "Comando gerado"
 
-#: admin/views/dashboard.php admin/assets/refaxination.js
+#: admin/views/dashboard.php:528
+#: admin/assets/refaxination.js:334
 msgid "Copy"
 msgstr "Copiar"
 
-#: admin/views/files.php
+#: admin/views/files.php:141
+#: admin/views/partials/running-operation.php:36
+msgid "Status:"
+msgstr "Status:"
+
+#: admin/views/files.php:143
+#: admin/views/files.php:153
 msgid "All"
 msgstr "Todos"
 
-#: admin/views/files.php
+#: admin/views/files.php:151
 msgid "Type:"
 msgstr "Tipo:"
 
-#: admin/views/files.php
+#: admin/views/files.php:154
 msgid "Image"
 msgstr "Imagem"
 
-#: admin/views/files.php
+#: admin/views/files.php:154
 msgid "Video"
 msgstr "Vídeo"
 
-#: admin/views/files.php
+#: admin/views/files.php:154
 msgid "Audio"
 msgstr "Áudio"
 
-#: admin/views/files.php
+#: admin/views/files.php:154
 msgid "Document"
 msgstr "Documento"
 
-#: admin/views/files.php
+#: admin/views/files.php:154
 msgid "Other"
 msgstr "Outro"
 
-#: admin/views/files.php
+#: admin/views/files.php:162
 msgid "Search by path..."
 msgstr "Buscar por caminho..."
 
-#: admin/views/files.php
+#: admin/views/files.php:165
 msgid "Filter"
 msgstr "Filtrar"
 
-#: admin/views/files.php
+#: admin/views/files.php:168
 msgid "Clear"
 msgstr "Limpar"
 
+#: admin/views/files.php:176
 #, php-format
-#: admin/views/files.php
 msgid "%s file found."
 msgid_plural "%s files found."
 msgstr[0] "%s arquivo encontrado."
 msgstr[1] "%s arquivos encontrados."
 
-#: admin/views/operations.php
+#: admin/views/files.php:187
+msgid "File"
+msgstr "Arquivo"
+
+#: admin/views/files.php:189
+#: admin/views/files.php:284
+msgid "Size"
+msgstr "Tamanho"
+
+#: admin/views/files.php:191
+msgid "References"
+msgstr "Referências"
+
+#: admin/views/files.php:192
+msgid "Library"
+msgstr "Biblioteca"
+
+#: admin/views/files.php:193
+msgid "Thumbnails"
+msgstr "Miniaturas"
+
+#: admin/views/files.php:283
+msgid "Path"
+msgstr "Caminho"
+
+#: admin/views/files.php:324
+msgid "Previous"
+msgstr "Anterior"
+
+#: admin/views/files.php:329
+#, php-format
+msgid "Page %d of %d"
+msgstr "Página %d de %d"
+
+#: admin/views/files.php:336
+msgid "Next"
+msgstr "Próximo"
+
+#: admin/views/files.php:343
+msgid "No files found with the applied filters."
+msgstr "Nenhum arquivo encontrado com os filtros aplicados."
+
+#: admin/views/operations.php:24
 msgid "Operation history"
 msgstr "Histórico de operações"
 
-#: admin/views/operations.php
+#: admin/views/operations.php:38
 msgid "Started at"
 msgstr "Iniciado em"
 
-#: admin/views/operations.php
+#: admin/views/operations.php:76
 msgid "[ver]"
 msgstr "[ver]"
 
-#: admin/views/operations.php
+#: admin/views/operations.php:105
 msgid "No operations recorded yet. Run a WP-CLI command to get started."
 msgstr "Nenhuma operação registrada ainda. Execute um comando WP-CLI para começar."
 
+#: admin/views/partials/running-operation.php:14
+msgid "Running"
+msgstr "Em execução"
+
+#: admin/views/partials/running-operation.php:17
+#: admin/assets/refaxination.js:19
+msgid "Counting files…"
+msgstr "Contando arquivos…"
+
+#: admin/views/partials/running-operation.php:19
+#: admin/assets/refaxination.js:21
+msgid "Detecting thumbnails…"
+msgstr "Detectando miniaturas…"
+
+#: admin/views/partials/running-operation.php:21
+#: includes/FileScanner.php:68
+#: admin/assets/refaxination.js:20
+msgid "Indexing"
+msgstr "Indexando"
+
+#: admin/views/partials/running-operation.php:31
+#: cli/Cli.php:167
+msgid "Running operation:"
+msgstr "Operação em execução:"
+
+#: admin/views/partials/running-operation.php:33
+msgid "started at"
+msgstr "iniciada em"
+
+#: admin/views/partials/running-operation.php:43
+msgid "files"
+msgstr "arquivos"
+
+#: cli/Cli.php:88
 #, php-format
-#: cli/Cli.php
 msgid "Move %s files to orphans/? This is reversible with `wp refaxination restore`."
 msgstr "Mover %s arquivos para orphans/? Isso é reversível com `wp refaxination restore`."
 
-#: cli/Cli.php
+#: cli/Cli.php:131
 msgid "--all and --file-id are mutually exclusive."
 msgstr "--all e --file-id são mutuamente exclusivos."
 
-#: cli/Cli.php
+#: cli/Cli.php:136
 msgid "Use --all to restore everything or --file-id=<id> for a specific file."
 msgstr "Use --all para restaurar tudo ou --file-id=<id> para um arquivo específico."
 
-#: cli/Cli.php
+#: cli/Cli.php:179
 msgid "No operation running."
 msgstr "Nenhuma operação em execução."
 
-#: cli/Cli.php
+#: cli/Cli.php:184
 msgid "Last completed operation:"
 msgstr "Última operação concluída:"
 
-#: cli/Cli.php
+#: cli/Cli.php:225
 msgid "Drop and recreate ALL refaxination_* tables?"
 msgstr "Dropar e recriar TODAS as tabelas refaxination_*?"
 
-#: cli/Cli.php
+#: cli/Cli.php:226
 msgid "Truncate refaxination_files, refaxination_references and refaxination_operations?"
 msgstr "Truncar refaxination_files, refaxination_references e refaxination_operations?"
 
-#: cli/Cli.php
+#: cli/Cli.php:237
 msgid "All tables recreated."
 msgstr "Todas as tabelas recriadas."
 
+#: cli/Cli.php:242
 #, php-format
-#: cli/Cli.php
 msgid "Truncated: %1$s (%2$d rows removed)"
 msgstr "Truncado: %1$s (%2$d linhas removidas)"
 
-#: cli/Cli.php
+#: cli/Cli.php:244
 msgid "Moves table preserved (audit log)."
 msgstr "Tabela de movimentações preservada (log de auditoria)."
 
+#: cli/Cli.php:271
 #, php-format
-#: cli/Cli.php
 msgid "%d stale operation marked as interrupted."
 msgid_plural "%d stale operations marked as interrupted."
 msgstr[0] "%d operação obsoleta marcada como interrompida."
 msgstr[1] "%d operações obsoletas marcadas como interrompidas."
 
-#: cli/ScanCommand.php
+#: cli/ScanCommand.php:44
 msgid "--reset and --resume are mutually exclusive."
 msgstr "--reset e --resume são mutuamente exclusivos."
 
-#: cli/ScanCommand.php
+#: cli/ScanCommand.php:52
 msgid "Tables truncated."
 msgstr "Tabelas truncadas."
 
+#: includes/FileScanner.php:47
 #, php-format
-#: includes/FileScanner.php
 msgid "Resuming from: %s"
 msgstr "Retomando a partir de: %s"
 
-#: includes/FileScanner.php
+#: includes/FileScanner.php:58
 msgid "Counting files..."
 msgstr "Contando arquivos..."
 
+#: includes/FileScanner.php:65
 #, php-format
-#: includes/FileScanner.php
 msgid "  %s files to index."
 msgstr "  %s arquivos para indexar."
 
-#: includes/FileScanner.php
+#: includes/FileScanner.php:128
 msgid "Detecting thumbnails..."
 msgstr "Detectando miniaturas..."
 
+#: includes/FileScanner.php:130
 #, php-format
-#: includes/FileScanner.php
 msgid "%1$d thumbnails linked to %2$d parent images."
 msgstr "%1$d miniaturas vinculadas a %2$d imagens pai."
 
+#: includes/FileScanner.php:135
 #, php-format
-#: includes/FileScanner.php
 msgid "Scan complete. %s files indexed. %s errors."
 msgstr "Varredura concluída. %s arquivos indexados. %s erros."
 
-#: includes/QuarantineManager.php
+#: includes/QuarantineManager.php:47
 msgid "No files to quarantine."
 msgstr "Nenhum arquivo para quarentena."
 
-#: includes/QuarantineManager.php
+#: includes/QuarantineManager.php:55
 msgid "[DRY RUN] "
 msgstr "[SIMULAÇÃO] "
 
+#: includes/QuarantineManager.php:56
 #, php-format
-#: includes/QuarantineManager.php
 msgid "%sQuarantining %s files..."
 msgstr "%sColocando %s arquivos em quarentena..."
 
+#: includes/QuarantineManager.php:97
 #, php-format
-#: includes/QuarantineManager.php
 msgid "  [DRY] uploads/%1$s → orphans/%1$s"
 msgstr "  [SIM] uploads/%1$s → orphans/%1$s"
 
+#: includes/QuarantineManager.php:134
 #, php-format
-#: includes/QuarantineManager.php
 msgid "Failed: %1$s - %2$s"
 msgstr "Falhou: %1$s - %2$s"
 
+#: includes/QuarantineManager.php:156
 #, php-format
-#: includes/QuarantineManager.php
 msgid "%1$s files would be moved to orphans/. %2$s errors."
 msgstr "%1$s arquivos seriam movidos para orphans/. %2$s erros."
 
+#: includes/QuarantineManager.php:158
 #, php-format
-#: includes/QuarantineManager.php
 msgid "%1$s files moved to orphans/. %2$s errors."
 msgstr "%1$s arquivos movidos para orphans/. %2$s erros."
 
-#: includes/QuarantineManager.php
+#: includes/QuarantineManager.php:184
 msgid "No files to restore."
 msgstr "Nenhum arquivo para restaurar."
 
+#: includes/QuarantineManager.php:208
 #, php-format
-#: includes/QuarantineManager.php
 msgid "  [DRY] orphans/%1$s → uploads/%1$s"
 msgstr "  [SIM] orphans/%1$s → uploads/%1$s"
 
+#: includes/QuarantineManager.php:242
 #, php-format
-#: includes/QuarantineManager.php
 msgid "Failed: %s"
 msgstr "Falhou: %s"
 
+#: includes/QuarantineManager.php:250
 #, php-format
-#: includes/QuarantineManager.php
 msgid "%s files restored. %s errors."
 msgstr "%s arquivos restaurados. %s erros."
 
-#: includes/ReferenceScanner.php
+#: includes/ReferenceScanner.php:47
 msgid "No scanners available for the selected sources."
 msgstr "Nenhum scanner disponível para as fontes selecionadas."
 
+#: includes/ReferenceScanner.php:60
 #, php-format
-#: includes/ReferenceScanner.php
 msgid "Active scanners: %s"
 msgstr "Scanners ativos: %s"
 
+#: includes/ReferenceScanner.php:73
 #, php-format
-#: includes/ReferenceScanner.php
 msgid "Scanning references... (%s files to process)"
 msgstr "Varrendo referências... (%s arquivos para processar)"
 
-#: includes/ReferenceScanner.php
+#: includes/ReferenceScanner.php:80
 msgid "Scanning refs"
 msgstr "Varrendo referências"
 
-#: includes/ReferenceScanner.php
+#: includes/ReferenceScanner.php:141
 msgid "Resolving statuses (inheriting thumbnails)..."
 msgstr "Resolvendo status (herdando miniaturas)..."
 
+#: includes/ReferenceScanner.php:150
 #, php-format
-#: includes/ReferenceScanner.php
 msgid "Scan complete. %s references found. %s errors."
 msgstr "Varredura concluída. %s referências encontradas. %s erros."
 
-#: includes/ReferenceScanner.php
+#: includes/ReferenceScanner.php:221
 msgid "Status distribution:"
 msgstr "Distribuição de status:"
 
-#: includes/Reporter.php
+#: includes/Reporter.php:114
 msgid "--- TOTAL ---"
 msgstr "--- TOTAL ---"
 
+#: includes/Reporter.php:128
 #, php-format
-#: includes/Reporter.php
 msgid "Last scan: %s"
 msgstr "Última varredura: %s"
 
-#: includes/Reporter.php
+#: includes/Reporter.php:135
 msgid "No results."
 msgstr "Nenhum resultado."
 
-#: admin/assets/refaxination.js
+#: admin/assets/refaxination.js:146
 msgid "⛔ --reset and --resume are mutually exclusive. Remove one of them."
 msgstr "⛔ --reset e --resume são mutuamente exclusivos. Remova um deles."
 
-#: admin/assets/refaxination.js
+#: admin/assets/refaxination.js:183
 msgid "✔ Dry run active, no files will be moved."
 msgstr "✔ Simulação ativa, nenhum arquivo será movido."
 
-#: admin/assets/refaxination.js
+#: admin/assets/refaxination.js:184
 msgid "⚠️ Live run, files will be moved to orphans/."
 msgstr "⚠️ Execução real, os arquivos serão movidos para orphans/."
 
-#: admin/assets/refaxination.js
+#: admin/assets/refaxination.js:196
 msgid "⛔ --all and --file-id are mutually exclusive. Remove one of them."
 msgstr "⛔ --all e --file-id são mutuamente exclusivos. Remova um deles."
 
-#: admin/assets/refaxination.js
+#: admin/assets/refaxination.js:202
 msgid "⚠️ Enter the file ID."
 msgstr "⚠️ Informe o ID do arquivo."
 
-#: admin/assets/refaxination.js
+#: admin/assets/refaxination.js:204
 msgid "⚠️ Select --all or --file-id to specify what to restore."
 msgstr "⚠️ Selecione --all ou --file-id para especificar o que restaurar."
 
-#: admin/assets/refaxination.js
+#: admin/assets/refaxination.js:222
 msgid "⚠️ --group-by=type ignores --status. Use one or the other."
 msgstr "⚠️ --group-by=type ignora --status. Use um ou outro."
 
-#: admin/assets/refaxination.js
+#: admin/assets/refaxination.js:230
 msgid "💡 Redirect output: append > report.csv to the command."
 msgstr "💡 Redirecione a saída: adicione > report.csv ao comando."
 
-#: admin/assets/refaxination.js
+#: admin/assets/refaxination.js:243
 msgid "All plugin data, including the move audit log, will be deleted."
 msgstr "Todos os dados do plugin, incluindo o log de auditoria de movimentações, serão excluídos."
 
-#: admin/assets/refaxination.js
+#: admin/assets/refaxination.js:244
 msgid "Scan data will be cleared (moves table preserved)."
 msgstr "Os dados de varredura serão limpos (tabela de movimentações preservada)."
 
-#: admin/assets/refaxination.js
+#: admin/assets/refaxination.js:331
 msgid "Copied!"
 msgstr "Copiado!"
+

@@ -4,7 +4,7 @@ Tags: media, files, uploads, orphaned, audit
 Requires at least: 6.5
 Tested up to: 7.0
 Requires PHP: 8.2
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -81,6 +81,10 @@ All file moves are logged in the `wp_refaxination_moves` table, which is preserv
 The audit log in the database records the original path of every moved file, so files can be manually restored.
 
 == Changelog ==
+
+= 1.0.1 =
+* Added Brazilian Portuguese (pt_BR) translation
+* Load plugin textdomain so bundled translations are applied
 
 = 1.0.0 =
 * Initial release

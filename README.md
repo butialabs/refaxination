@@ -52,3 +52,19 @@ wp refaxination report --format=csv
 - Yoast SEO
 - The SEO Framework
 - SSP (Seriously Simple Podcasting)
+
+## Changelog
+
+### 1.0.1
+
+* Add Brazilian Portuguese (pt_BR) translation
+* Load plugin textdomain so bundled translations are applied
+
+### 1.0.0
+
+* Initial release
+* Filesystem and database scanning
+* Admin dashboard with tabs for Dashboard, Files, and Operations
+* WP-CLI integration for scan and report commands
+* Support for ACF, Yoast SEO, and The SEO Framework
+* Quarantine manager with full audit log
